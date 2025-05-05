@@ -51,6 +51,8 @@ const ClientManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false);
 
   useEffect(() => {
     fetchClients();
@@ -85,6 +87,25 @@ const ClientManagement = () => {
     return diffDays;
   };
 
+  const calculateAmount = (membershipType) => {
+    const monthlyRate = 500; // 500 rupees per month
+    let months = 0;
+    switch (membershipType) {
+      case '1month':
+        months = 1;
+        break;
+      case '3month':
+        months = 3;
+        break;
+      case '6month':
+        months = 6;
+        break;
+      default:
+        months = 1;
+    }
+    return months * monthlyRate;
+  };
+
   const filteredClients = clients.filter(client =>
     client.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -111,6 +132,35 @@ const ClientManagement = () => {
       ];
     });
     exportToPDF(data, columns, 'Client Management Report');
+  };
+
+  const handlePreviewInvoice = (client) => {
+    setSelectedClient(client);
+    setShowInvoicePreview(true);
+  };
+
+  const handleDownloadInvoice = async (clientId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:5000/api/clients/invoice/${clientId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        responseType: 'blob'
+      });
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${selectedClient.username}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Failed to download invoice');
+    }
   };
 
   return (
@@ -140,6 +190,69 @@ const ClientManagement = () => {
         </div>
       </div>
 
+      {/* Invoice Preview Modal */}
+      {showInvoicePreview && selectedClient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg max-w-2xl w-full">
+            <h3 className="text-xl font-bold mb-4">Invoice Preview</h3>
+            <div className="mb-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p><strong>Username:</strong> {selectedClient.username}</p>
+                  <p><strong>Email:</strong> {selectedClient.email}</p>
+                  <p><strong>Phone:</strong> {selectedClient.phone}</p>
+                </div>
+                <div>
+                  <p><strong>Membership Type:</strong> {selectedClient.membershipType}</p>
+                  <p><strong>Start Date:</strong> {new Date(selectedClient.startDate).toLocaleDateString()}</p>
+                  <p><strong>End Date:</strong> {new Date(selectedClient.endDate).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="mt-4">
+                <table className="min-w-full border">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border p-2">Description</th>
+                      <th className="border p-2">Duration</th>
+                      <th className="border p-2">Rate</th>
+                      <th className="border p-2">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border p-2">Gym Membership</td>
+                      <td className="border p-2">
+                        {selectedClient.membershipType === '1month' ? '1 Month' :
+                         selectedClient.membershipType === '3month' ? '3 Months' : '6 Months'}
+                      </td>
+                      <td className="border p-2">₹500/month</td>
+                      <td className="border p-2">₹{calculateAmount(selectedClient.membershipType)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className="mt-4 text-right">
+                  <p className="font-bold">Total Amount: ₹{calculateAmount(selectedClient.membershipType)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => handleDownloadInvoice(selectedClient._id)}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Download PDF
+              </button>
+              <button
+                onClick={() => setShowInvoicePreview(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Clients Table */}
       {loading ? (
         <div className="text-center py-4">Loading...</div>
@@ -164,6 +277,9 @@ const ClientManagement = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -208,6 +324,14 @@ const ClientManagement = () => {
                       }`}>
                         {isActive ? 'Active' : 'Expired'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => handlePreviewInvoice(client)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                      >
+                        Preview Invoice
+                      </button>
                     </td>
                   </tr>
                 );
