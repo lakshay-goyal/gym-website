@@ -4,6 +4,9 @@ import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import AdminDashboard from './components/AdminDashboard';
 import ClientDashboard from './components/ClientDashboard';
+import QRGenerator from './components/QRGenerator';
+import QRScanner from './components/QRScanner';
+import AttendanceDashboard from './components/AttendanceDashboard';
 
 const PrivateRoute = ({ children, role }) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -34,10 +37,34 @@ function App() {
           }
         />
         <Route
+          path="/admin/qr-generator"
+          element={
+            <PrivateRoute role="admin">
+              <QRGenerator />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/client-dashboard"
           element={
             <PrivateRoute role="client">
               <ClientDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/client/qr-scanner"
+          element={
+            <PrivateRoute role="client">
+              <QRScanner />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/client/attendance"
+          element={
+            <PrivateRoute role="client">
+              <AttendanceDashboard username={JSON.parse(localStorage.getItem('user'))?.username} />
             </PrivateRoute>
           }
         />

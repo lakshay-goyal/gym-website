@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaSearch, FaCalendarAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import AddClientForm from './AddClientForm';
+import { FaCalendarAlt } from 'react-icons/fa';
 
-const AdminDashboard = () => {
+const AttendanceDashboard = ({ username }) => {
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
-  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     fetchAttendance();
-  }, [dateFilter, monthFilter]);
+  }, [username, dateFilter, monthFilter]);
 
   const fetchAttendance = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:5000/api/qr/attendance', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
         params: {
+          username,
           date: dateFilter,
           month: monthFilter
         }
@@ -39,65 +32,10 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <span className="text-xl font-bold text-gray-800">Admin Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Welcome, {user?.username}</span>
-              <button
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-blue-600"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="border-4 border-dashed border-gray-200 rounded-lg p-4">
-            <h2 className="text-2xl font-bold mb-4">Admin Controls</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-2">Manage Members</h3>
-                <p className="text-gray-600">View and manage gym members</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-2">Equipment Management</h3>
-                <p className="text-gray-600">Track and manage gym equipment</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-2">Reports</h3>
-                <p className="text-gray-600">View gym reports and analytics</p>
-              </div>
-              <div 
-                className="bg-white p-6 rounded-lg shadow cursor-pointer hover:bg-gray-50"
-                onClick={() => navigate('/admin/qr-generator')}
-              >
-                <h3 className="text-lg font-semibold mb-2">QR Code Generator</h3>
-                <p className="text-gray-600">Generate and print QR codes for attendance</p>
-              </div>
-            </div>
-              <AddClientForm />
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8">Client Attendance Records</h1>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8">Your Attendance History</h1>
         
         {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
@@ -139,15 +77,17 @@ const AdminDashboard = () => {
             <div className="p-4 text-center">Loading...</div>
           ) : error ? (
             <div className="p-4 text-red-600">{error}</div>
+          ) : attendance.length === 0 ? (
+            <div className="p-4 text-center text-gray-600">No attendance records found</div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Username
+                    Check-in Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Check-in Date
+                    Status
                   </th>
                 </tr>
               </thead>
@@ -155,10 +95,12 @@ const AdminDashboard = () => {
                 {attendance.map((record, index) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.username}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {new Date(record.checkInDate).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Checked In
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -171,4 +113,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard; 
+export default AttendanceDashboard; 

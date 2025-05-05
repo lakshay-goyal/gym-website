@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaDumbbell, FaUser, FaLock } from 'react-icons/fa';
+import { FaDumbbell, FaUser, FaLock, FaQrcode } from 'react-icons/fa';
+import QRScanner from './QRScanner';
 
 const LandingPage = () => {
+  const [showScanner, setShowScanner] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation */}
@@ -14,6 +17,12 @@ const LandingPage = () => {
               <span className="ml-2 text-xl font-bold text-gray-800">GymFit</span>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowScanner(!showScanner)}
+                className="text-gray-600 hover:text-blue-600"
+              >
+                <FaQrcode className="h-6 w-6" />
+              </button>
               <Link to="/login" className="text-gray-600 hover:text-blue-600">
                 <FaUser className="h-6 w-6" />
               </Link>
@@ -22,6 +31,12 @@ const LandingPage = () => {
         </div>
       </nav>
 
+      {showScanner ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <QRScanner />
+        </div>
+      ) : (
+        <>
       {/* Hero Section */}
       <div className="relative bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto">
@@ -86,6 +101,8 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 };
