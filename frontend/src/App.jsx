@@ -29,7 +29,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
-          path="/admin-dashboard"
+          path="/admin/dashboard"
           element={
             <PrivateRoute role="admin">
               <AdminDashboard />
@@ -45,7 +45,7 @@ function App() {
           }
         />
         <Route
-          path="/client-dashboard"
+          path="/client/dashboard"
           element={
             <PrivateRoute role="client">
               <ClientDashboard />

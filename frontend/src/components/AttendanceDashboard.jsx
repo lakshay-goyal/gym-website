@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaCalendarAlt } from 'react-icons/fa';
+import { FaCalendarAlt, FaDumbbell, FaFire, FaRunning, FaCheckCircle, FaFilter } from 'react-icons/fa';
+import { GiWeightLiftingUp } from 'react-icons/gi';
 
 const AttendanceDashboard = ({ username }) => {
   const [attendance, setAttendance] = useState([]);
@@ -8,15 +9,29 @@ const AttendanceDashboard = ({ username }) => {
   const [error, setError] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
+  const [stats, setStats] = useState({
+    totalVisits: 0,
+    currentMonthVisits: 0,
+    lastMonthVisits: 0
+  });
 
   useEffect(() => {
     fetchAttendance();
-  }, [username, dateFilter, monthFilter]);
+    fetchStats();
+  }, [username]);
+
+  useEffect(() => {
+    fetchAttendance();
+  }, [dateFilter, monthFilter]);
 
   const fetchAttendance = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:5000/api/qr/attendance', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
         params: {
           username,
           date: dateFilter,
@@ -32,16 +47,138 @@ const AttendanceDashboard = ({ username }) => {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication token not found. Please login again.');
+        return;
+      }
+
+      const response = await axios.get('http://localhost:5000/api/qr/attendance/stats', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: { username }
+      });
+
+      if (response.data) {
+        setStats({
+          totalVisits: response.data.totalVisits || 0,
+          currentMonthVisits: response.data.currentMonthVisits || 0,
+          lastMonthVisits: response.data.lastMonthVisits || 0
+        });
+        setError(''); // Clear any previous errors
+      } else {
+        setError('No data received from server');
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error.response || error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setError(`Server error: ${error.response.data?.message || error.response.statusText}`);
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please check your connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError(`Error: ${error.message}`);
+      }
+      // Set default values when there's an error
+      setStats({
+        totalVisits: 0,
+        currentMonthVisits: 0,
+        lastMonthVisits: 0
+      });
+    }
+  };
+
+  const clearFilters = () => {
+    setDateFilter('');
+    setMonthFilter('');
+  };
+
+  const getMotivationalMessage = () => {
+    const messages = [
+      "Every rep counts! Keep pushing!",
+      "Strength doesn't come from what you can do. It comes from overcoming what you once thought you couldn't.",
+      "The only bad workout is the one that didn't happen!",
+      "Your future self will thank you for today's effort!",
+      "Sweat is just fat crying! Keep going!"
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Your Attendance History</h1>
+        {/* Header */}
+        <div className="flex items-center mb-8">
+          <GiWeightLiftingUp className="text-red-500 text-4xl mr-3" />
+          <h1 className="text-3xl font-bold text-white">
+            <span className="text-red-500">FIT</span>TRACK ATTENDANCE
+          </h1>
+        </div>
         
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gray-800/50 rounded-xl p-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
+            <div className="flex items-center">
+              <FaDumbbell className="text-red-400 text-2xl mr-3" />
+              <h3 className="text-white text-lg font-semibold">Total Visits</h3>
+            </div>
+            <p className="text-white text-4xl font-bold mt-3">{stats.totalVisits}</p>
+            <p className="text-gray-400 text-sm mt-2">Since you joined</p>
+          </div>
+          
+          <div className="bg-gray-800/50 rounded-xl p-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
+            <div className="flex items-center">
+              <FaFire className="text-yellow-400 text-2xl mr-3" />
+              <h3 className="text-white text-lg font-semibold">This Month</h3>
+            </div>
+            <p className="text-white text-4xl font-bold mt-3">{stats.currentMonthVisits}</p>
+            <p className="text-gray-400 text-sm mt-2">Workout sessions</p>
+          </div>
+          
+          <div className="bg-gray-800/50 rounded-xl p-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
+            <div className="flex items-center">
+              <FaRunning className="text-blue-400 text-2xl mr-3" />
+              <h3 className="text-white text-lg font-semibold">Last Month</h3>
+            </div>
+            <p className="text-white text-4xl font-bold mt-3">{stats.lastMonthVisits}</p>
+            <p className="text-gray-400 text-sm mt-2">
+              {stats.lastMonthVisits > stats.currentMonthVisits ? "You can do better!" : "Great progress!"}
+            </p>
+          </div>
+        </div>
+        
+        {/* Motivational Message */}
+        <div className="bg-gradient-to-r from-red-900 to-red-800 rounded-xl p-6 mb-8 shadow-xl border border-red-800/50">
+          <p className="text-white text-center font-medium italic text-lg">
+            {getMotivationalMessage()}
+          </p>
+        </div>
+
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-gray-800/50 p-6 rounded-xl shadow-xl mb-8 border border-gray-700/50 backdrop-blur-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center">
+              <FaFilter className="mr-2 text-red-400" />
+            Filter Attendance
+          </h2>
+            {(dateFilter || monthFilter) && (
+              <button
+                onClick={clearFilters}
+                className="text-red-400 hover:text-red-300 text-sm flex items-center"
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Filter by Date
               </label>
               <div className="relative">
@@ -49,13 +186,18 @@ const AttendanceDashboard = ({ username }) => {
                   type="date"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full bg-gray-700/50 text-white rounded-lg border border-gray-600 shadow-sm focus:border-red-500 focus:ring-red-500 p-3"
                 />
-                <FaCalendarAlt className="absolute right-3 top-3 text-gray-400" />
+                <button
+                  onClick={() => setDateFilter('')}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-300"
+                >
+                  <FaCalendarAlt />
+                </button>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Filter by Month
               </label>
               <div className="relative">
@@ -63,54 +205,102 @@ const AttendanceDashboard = ({ username }) => {
                   type="month"
                   value={monthFilter}
                   onChange={(e) => setMonthFilter(e.target.value)}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full bg-gray-700/50 text-white rounded-lg border border-gray-600 shadow-sm focus:border-red-500 focus:ring-red-500 p-3"
                 />
-                <FaCalendarAlt className="absolute right-3 top-3 text-gray-400" />
+                <button
+                  onClick={() => setMonthFilter('')}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-300"
+                >
+                  <FaCalendarAlt />
+                </button>
               </div>
             </div>
           </div>
         </div>
 
         {/* Attendance Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-gray-800/50 rounded-xl shadow-xl overflow-hidden border border-gray-700/50 backdrop-blur-sm">
           {loading ? (
-            <div className="p-4 text-center">Loading...</div>
+            <div className="p-8 text-center text-gray-300">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mx-auto mb-4"></div>
+              <p>Loading your workout history...</p>
+            </div>
           ) : error ? (
-            <div className="p-4 text-red-600">{error}</div>
+            <div className="p-8 text-center text-red-400">
+              <p className="font-medium">{error}</p>
+              <button 
+                onClick={() => {
+                  fetchAttendance();
+                  fetchStats();
+                }}
+                className="mt-4 bg-red-900/50 hover:bg-red-900 text-white px-6 py-3 rounded-lg transition-all"
+              >
+                Retry
+              </button>
+            </div>
           ) : attendance.length === 0 ? (
-            <div className="p-4 text-center text-gray-600">No attendance records found</div>
+            <div className="p-8 text-center text-gray-400">
+              <GiWeightLiftingUp className="text-5xl mx-auto text-gray-600 mb-4" />
+              <p className="text-xl">No workout sessions found</p>
+              <p className="mt-2">Hit the gym and check in to see your records here!</p>
+            </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Check-in Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {attendance.map((record, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(record.checkInDate).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Checked In
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+              <div className="px-6 py-4 border-b border-gray-700/50 flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-white">
+                  Your Workout Sessions ({attendance.length})
+                </h3>
+                <span className="text-sm text-gray-400">
+                  Showing {dateFilter || monthFilter ? 'filtered' : 'all'} records
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-700/50">
+                  <thead className="bg-gray-800/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Session Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-gray-800/30 divide-y divide-gray-700/50">
+                    {attendance.map((record, index) => (
+                      <tr key={index} className="hover:bg-gray-700/30 transition">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white">
+                            {new Date(record.checkInDate).toLocaleDateString()}
+                          </div>
+                          <div className="text-sm text-gray-400">
+                            {new Date(record.checkInDate).toLocaleTimeString()}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <FaCheckCircle className="text-green-400 mr-2" />
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300">
+                              Checked In
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
+        </div>
+        
+        {/* Footer Note */}
+        <div className="mt-8 text-center text-gray-400 text-sm">
+          <p>Every drop of sweat brings you closer to your goals. Keep grinding!</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default AttendanceDashboard; 
+export default AttendanceDashboard;

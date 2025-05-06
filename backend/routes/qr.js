@@ -152,4 +152,78 @@ router.get('/attendance', async (req, res) => {
   }
 });
 
-module.exports = router; 
+// Get all QR codes
+router.get('/codes', async (req, res) => {
+  try {
+    const qrCodes = await QRCode.find().sort({ createdAt: -1 });
+    res.json(qrCodes);
+  } catch (error) {
+    console.error('Error fetching QR codes:', error);
+    res.status(500).json({ message: 'Error fetching QR codes' });
+  }
+});
+
+// Delete a QR code
+router.delete('/:code', async (req, res) => {
+  try {
+    const { code } = req.params;
+    const deletedQR = await QRCode.findOneAndDelete({ code });
+    
+    if (!deletedQR) {
+      return res.status(404).json({ message: 'QR code not found' });
+    }
+    
+    res.json({ message: 'QR code deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting QR code:', error);
+    res.status(500).json({ message: 'Error deleting QR code' });
+  }
+});
+
+// Get attendance statistics
+router.get('/attendance/stats', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+    }
+
+    // Get current date and calculate first day of current and last month
+    const now = new Date();
+    const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    // Calculate total visits
+    const totalVisits = await Attendance.countDocuments({ username });
+
+    // Calculate current month visits
+    const currentMonthVisits = await Attendance.countDocuments({
+      username,
+      checkInDate: {
+        $gte: firstDayOfCurrentMonth,
+        $lt: firstDayOfNextMonth
+      }
+    });
+
+    // Calculate last month visits
+    const lastMonthVisits = await Attendance.countDocuments({
+      username,
+      checkInDate: {
+        $gte: firstDayOfLastMonth,
+        $lt: firstDayOfCurrentMonth
+      }
+    });
+
+    res.json({
+      totalVisits,
+      currentMonthVisits,
+      lastMonthVisits
+    });
+  } catch (error) {
+    console.error('Error fetching attendance stats:', error);
+    res.status(500).json({ message: 'Error fetching attendance statistics' });
+  }
+});
+
+module.exports = router;
