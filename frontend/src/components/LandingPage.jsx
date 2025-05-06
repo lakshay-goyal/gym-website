@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaDumbbell, FaUser, FaLock, FaQrcode, FaRunning, FaHeartbeat, FaApple, FaRegCreditCard, FaFire, FaTrophy, FaMedal } from 'react-icons/fa';
+import { 
+  FaDumbbell, FaUser, FaLock, FaQrcode, FaRunning, 
+  FaHeartbeat, FaApple, FaRegCreditCard, FaFire, 
+  FaTrophy, FaMedal, FaQuoteLeft, FaQuoteRight 
+} from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import QRScanner from './QRScanner';
 
@@ -9,6 +13,15 @@ const LandingPage = () => {
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const [showSubscription, setShowSubscription] = useState(false);
   const [motivationalQuote, setMotivationalQuote] = useState("");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Gym background images for hero section rotation
+  const gymImages = [
+    "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80",
+    "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80",
+    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80",
+    "https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80"
+  ];
 
   // Motivational quotes for gym
   const quotes = [
@@ -21,7 +34,31 @@ const LandingPage = () => {
     "Sweat is just fat crying.",
     "The pain you feel today will be the strength you feel tomorrow.",
     "Wake up with determination. Go to bed with satisfaction.",
-    "Discipline is choosing between what you want now and what you want most."
+    "Discipline is choosing between what you want now and what you want most.",
+    "A one-hour workout is 4% of your day. No excuses.",
+    "The hardest lift of all is lifting your ass off the couch.",
+    "You don't have to be extreme, just consistent.",
+    "Rome wasn't built in a day, but they were laying bricks every hour.",
+    "The only place where success comes before work is in the dictionary.",
+    "You're only one workout away from a good mood.",
+    "Train like a beast, look like a beauty.",
+    "Your limitation—it's only your imagination.",
+    "Push yourself because no one else is going to do it for you.",
+    "The secret of getting ahead is getting started."
+  ];
+
+  // Daily motivational tips
+  const dailyTips = [
+    "Today's Tip: Focus on progressive overload - increase weight or reps each session.",
+    "Tip: Stay hydrated! Drink at least 3 liters of water today.",
+    "Tip: Prioritize protein intake to support muscle recovery.",
+    "Tip: Get 7-9 hours of sleep for optimal recovery and performance.",
+    "Tip: Warm up properly to prevent injuries and improve performance.",
+    "Tip: Track your workouts to monitor progress over time.",
+    "Tip: Don't skip leg day - it's the foundation of your physique.",
+    "Tip: Focus on form over weight to maximize results and prevent injury.",
+    "Tip: Incorporate mobility work to improve range of motion.",
+    "Tip: Challenge yourself with new exercises to avoid plateaus."
   ];
 
   useEffect(() => {
@@ -29,11 +66,21 @@ const LandingPage = () => {
     setMotivationalQuote(quotes[Math.floor(Math.random() * quotes.length)]);
 
     // Change quote every 10 seconds
-    const interval = setInterval(() => {
+    const quoteInterval = setInterval(() => {
       setMotivationalQuote(quotes[Math.floor(Math.random() * quotes.length)]);
     }, 10000);
 
-    return () => clearInterval(interval);
+    // Rotate background images every 8 seconds
+    const imageInterval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === gymImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 8000);
+
+    return () => {
+      clearInterval(quoteInterval);
+      clearInterval(imageInterval);
+    };
   }, []);
 
   // Animation variants
@@ -54,14 +101,14 @@ const LandingPage = () => {
       name: "Sarah Johnson",
       role: "Lost 30 lbs in 6 months",
       image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&h=100&q=80",
-      quote: "GymFit transformed my life! The trainers are amazing and the community is so supportive."
+      quote: "IRON TEMPLE transformed my life! The trainers are amazing and the community is so supportive."
     },
     {
       id: 2,
       name: "Mike Chen",
       role: "Bodybuilding Champion",
       image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&h=100&q=80",
-      quote: "I've been to many gyms, but the equipment and atmosphere at GymFit is unmatched. It's my second home!"
+      quote: "I've been to many gyms, but the equipment and atmosphere at IRON TEMPLE is unmatched. It's my second home!"
     },
     {
       id: 3,
@@ -72,43 +119,53 @@ const LandingPage = () => {
     }
   ];
 
+  // Membership plans data
+  const membershipPlans = [
+    {
+      name: "Basic",
+      monthlyPrice: "$29",
+      quarterlyPrice: "$75",
+      annualPrice: "$290",
+      features: [
+        "Access to gym equipment",
+        "Standard operating hours",
+        "Locker access",
+        "Free Wi-Fi"
+      ],
+      popular: false
+    },
+    {
+      name: "Premium",
+      monthlyPrice: "$49",
+      quarterlyPrice: "$130",
+      annualPrice: "$490",
+      features: [
+        "All Basic features",
+        "24/7 gym access",
+        "Group fitness classes",
+        "Free towel service",
+        "Sauna access"
+      ],
+      popular: true
+    },
+    {
+      name: "Elite",
+      monthlyPrice: "$79",
+      quarterlyPrice: "$210",
+      annualPrice: "$790",
+      features: [
+        "All Premium features",
+        "Personal training sessions (2/mo)",
+        "Nutrition consultation",
+        "Spa access",
+        "Complimentary shakes"
+      ],
+      popular: false
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navigation */}
-      <nav className="bg-black shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <motion.div
-                initial={{ rotate: -10 }}
-                animate={{ rotate: 10 }}
-                transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-              >
-                <FaDumbbell className="h-8 w-8 text-red-500" />
-              </motion.div>
-              <span className="ml-2 text-xl font-bold text-white">IRON TEMPLE</span>
-            </div>
-            <div className="flex items-center space-x-6">
-              <button
-                onClick={() => setShowSubscription(!showSubscription)}
-                className="text-gray-300 hover:text-red-500 font-medium transition-colors duration-300"
-              >
-                Memberships
-              </button>
-              <button
-                onClick={() => setShowScanner(!showScanner)}
-                className="text-gray-300 hover:text-red-500 transition-colors duration-300"
-              >
-                <FaQrcode className="h-6 w-6" />
-              </button>
-              <Link to="/login" className="flex items-center text-gray-300 hover:text-red-500 transition-colors duration-300">
-                <FaUser className="h-5 w-5 mr-1" />
-                <span>Login</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {showScanner ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -130,28 +187,31 @@ const LandingPage = () => {
               <div className="inline-flex rounded-md shadow-sm">
                 <button
                   onClick={() => setSelectedPlan('monthly')}
-                  className={`px-4 py-2 text-sm font-medium rounded-l-md ${selectedPlan === 'monthly'
+                  className={`px-4 py-2 text-sm font-medium rounded-l-md ${
+                    selectedPlan === 'monthly'
                       ? 'bg-red-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                  }`}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setSelectedPlan('quarterly')}
-                  className={`px-4 py-2 text-sm font-medium ${selectedPlan === 'quarterly'
+                  className={`px-4 py-2 text-sm font-medium ${
+                    selectedPlan === 'quarterly'
                       ? 'bg-red-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                  }`}
                 >
                   Quarterly
                 </button>
                 <button
                   onClick={() => setSelectedPlan('annual')}
-                  className={`px-4 py-2 text-sm font-medium rounded-r-md ${selectedPlan === 'annual'
+                  className={`px-4 py-2 text-sm font-medium rounded-r-md ${
+                    selectedPlan === 'annual'
                       ? 'bg-red-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                  }`}
                 >
                   Annual
                 </button>
@@ -159,184 +219,84 @@ const LandingPage = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-              {/* Basic Plan */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-gray-200"
-              >
-                <div className="bg-gray-50 px-6 py-8 text-center relative">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gray-400"></div>
-                  <h3 className="text-2xl font-bold text-gray-900">Basic</h3>
-                  <div className="mt-4 flex justify-center">
-                    <span className="text-5xl font-extrabold text-gray-900">
-                      {selectedPlan === 'monthly' && '$29'}
-                      {selectedPlan === 'quarterly' && '$75'}
-                      {selectedPlan === 'annual' && '$290'}
-                    </span>
-                    <span className="ml-1 text-xl font-medium text-gray-500 self-end">
-                      {selectedPlan === 'monthly' && '/mo'}
-                      {selectedPlan === 'quarterly' && '/qtr'}
-                      {selectedPlan === 'annual' && '/yr'}
-                    </span>
+              {membershipPlans.map((plan, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.03 }}
+                  className={`bg-white rounded-lg shadow-lg overflow-hidden border-2 ${
+                    plan.popular ? 'border-red-500' : 'border-gray-200'
+                  } relative`}
+                >
+                  {plan.popular && (
+                    <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 transform rotate-45 translate-x-8 -translate-y-1">
+                      POPULAR
+                    </div>
+                  )}
+                  <div className={`px-6 py-8 text-center ${
+                    plan.popular ? 'bg-red-50' : 'bg-gray-50'
+                  }`}>
+                    <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                    <div className="mt-4 flex justify-center">
+                      <span className="text-5xl font-extrabold text-gray-900">
+                        {selectedPlan === 'monthly' && plan.monthlyPrice}
+                        {selectedPlan === 'quarterly' && plan.quarterlyPrice}
+                        {selectedPlan === 'annual' && plan.annualPrice}
+                      </span>
+                      <span className="ml-1 text-xl font-medium text-gray-500 self-end">
+                        {selectedPlan === 'monthly' && '/mo'}
+                        {selectedPlan === 'quarterly' && '/qtr'}
+                        {selectedPlan === 'annual' && '/yr'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="px-6 py-8">
-                  <ul className="space-y-4">
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Access to gym equipment</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Standard operating hours</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Locker access</span>
-                    </li>
-                  </ul>
-                  <div className="mt-8">
-                    <a href="#" className="block w-full bg-gray-800 text-white text-center rounded-md px-4 py-3 font-medium hover:bg-gray-700 transition-colors duration-300">
-                      Select Plan
-                    </a>
+                  <div className="px-6 py-8">
+                    <ul className="space-y-4">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-start">
+                          <svg 
+                            className="h-5 w-5 text-green-500 flex-shrink-0 mt-1" 
+                            fill="currentColor" 
+                            viewBox="0 0 20 20"
+                          >
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="ml-3 text-gray-700">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-8">
+                      <a 
+                        href="#" 
+                        className={`block w-full text-center rounded-md px-4 py-3 font-medium hover:bg-red-700 transition-colors duration-300 ${
+                          plan.popular 
+                            ? 'bg-red-600 text-white' 
+                            : plan.name === 'Elite' 
+                              ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                              : 'bg-gray-800 text-white hover:bg-gray-700'
+                        }`}
+                      >
+                        Select Plan
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-
-              {/* Premium Plan */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="bg-white rounded-lg shadow-lg border-2 border-red-500 overflow-hidden transform relative"
-              >
-                <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 transform rotate-45 translate-x-8 -translate-y-1">
-                  POPULAR
-                </div>
-                <div className="bg-red-50 px-6 py-8 text-center">
-                  <h3 className="text-2xl font-bold text-gray-900">Premium</h3>
-                  <div className="mt-4 flex justify-center">
-                    <span className="text-5xl font-extrabold text-gray-900">
-                      {selectedPlan === 'monthly' && '$49'}
-                      {selectedPlan === 'quarterly' && '$130'}
-                      {selectedPlan === 'annual' && '$490'}
-                    </span>
-                    <span className="ml-1 text-xl font-medium text-gray-500 self-end">
-                      {selectedPlan === 'monthly' && '/mo'}
-                      {selectedPlan === 'quarterly' && '/qtr'}
-                      {selectedPlan === 'annual' && '/yr'}
-                    </span>
-                  </div>
-                </div>
-                <div className="px-6 py-8">
-                  <ul className="space-y-4">
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">All Basic features</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">24/7 gym access</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Group fitness classes</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Free towel service</span>
-                    </li>
-                  </ul>
-                  <div className="mt-8">
-                    <a href="#" className="block w-full bg-red-600 text-white text-center rounded-md px-4 py-3 font-medium hover:bg-red-700 transition-colors duration-300">
-                      Select Plan
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Elite Plan */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-yellow-500"
-              >
-                <div className="bg-yellow-50 px-6 py-8 text-center">
-                  <h3 className="text-2xl font-bold text-gray-900">Elite</h3>
-                  <div className="mt-4 flex justify-center">
-                    <span className="text-5xl font-extrabold text-gray-900">
-                      {selectedPlan === 'monthly' && '$79'}
-                      {selectedPlan === 'quarterly' && '$210'}
-                      {selectedPlan === 'annual' && '$790'}
-                    </span>
-                    <span className="ml-1 text-xl font-medium text-gray-500 self-end">
-                      {selectedPlan === 'monthly' && '/mo'}
-                      {selectedPlan === 'quarterly' && '/qtr'}
-                      {selectedPlan === 'annual' && '/yr'}
-                    </span>
-                  </div>
-                </div>
-                <div className="px-6 py-8">
-                  <ul className="space-y-4">
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">All Premium features</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Personal training sessions (2/mo)</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Nutrition consultation</span>
-                    </li>
-                    <li className="flex items-center">
-                      <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="ml-3 text-gray-700">Spa access</span>
-                    </li>
-                  </ul>
-                  <div className="mt-8">
-                    <a href="#" className="block w-full bg-yellow-500 text-white text-center rounded-md px-4 py-3 font-medium hover:bg-yellow-600 transition-colors duration-300">
-                      Select Plan
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
       ) : (
         <>
           {/* Hero Section with Background Image */}
-          <div className="relative bg-black overflow-hidden">
-            <div className="absolute inset-0 z-0 opacity-70">
+          <div className="relative bg-black overflow-hidden h-screen">
+            <div className="absolute inset-0 z-0 opacity-70 transition-opacity duration-1000 ease-in-out">
               <img
-                src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80"
+                src={gymImages[currentImageIndex]}
                 alt="Gym background"
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="py-20 md:py-28 lg:py-32">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex items-center">
+              <div className="py-20 md:py-28 lg:py-32 w-full">
                 <motion.div
                   initial="hidden"
                   animate="visible"
@@ -344,13 +304,17 @@ const LandingPage = () => {
                   className="text-center"
                 >
                   <h1 className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
-                    <span className="block">BUILD YOUR</span>
-                    <span className="block text-red-500">BEST BODY</span>
+                    <span className="block">FORGE YOUR</span>
+                    <span className="block text-red-500">ULTIMATE PHYSIQUE</span>
                   </h1>
-                  <p className="mt-3 max-w-md mx-auto text-base text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                    {motivationalQuote}
-                  </p>
-                  <div className="mt-8 sm:flex sm:justify-center">
+                  <div className="mt-6 max-w-lg mx-auto bg-black bg-opacity-60 p-4 rounded-lg">
+                    <p className="text-xl text-white font-medium">
+                      <FaQuoteLeft className="inline text-red-500 mr-2" />
+                      {motivationalQuote}
+                      <FaQuoteRight className="inline text-red-500 ml-2" />
+                    </p>
+                  </div>
+                  <div className="mt-10 sm:flex sm:justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -366,7 +330,6 @@ const LandingPage = () => {
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="mt-3 sm:mt-0 sm:ml-3"
                     >
                       <button
                         onClick={() => setShowSubscription(true)}
@@ -379,10 +342,24 @@ const LandingPage = () => {
                 </motion.div>
               </div>
             </div>
+            
+            {/* Daily Motivation Tip */}
+            <div className="absolute bottom-4 left-0 right-0 z-10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="max-w-2xl mx-auto bg-red-600 text-white text-center p-3 rounded-lg shadow-lg"
+              >
+                <p className="font-medium">
+                  {dailyTips[Math.floor(Math.random() * dailyTips.length)]}
+                </p>
+              </motion.div>
+            </div>
           </div>
 
           {/* Stats Section */}
-          <div className="bg-black text-white py-12">
+          <div className="bg-gradient-to-r from-black to-gray-900 text-white py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <motion.div
@@ -424,6 +401,191 @@ const LandingPage = () => {
                 >
                   <div className="text-4xl font-bold text-red-500">10</div>
                   <div className="text-gray-300 mt-2">PRO TRAINERS</div>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+
+          {/* Membership Plans Preview */}
+          <div className="py-16 bg-gray-100">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeIn}
+                className="text-center mb-12"
+              >
+                <h2 className="text-3xl font-extrabold text-gray-900">MEMBERSHIP PLANS</h2>
+                <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+                  Choose the plan that fits your fitness journey
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {membershipPlans.map((plan, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className={`bg-white rounded-lg shadow-lg overflow-hidden border-2 ${
+                      plan.popular ? 'border-red-500 transform -translate-y-2' : 'border-gray-200'
+                    } relative transition-all duration-300`}
+                  >
+                    {plan.popular && (
+                      <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 transform rotate-45 translate-x-8 -translate-y-1">
+                        POPULAR
+                      </div>
+                    )}
+                    <div className={`px-6 py-8 text-center ${
+                      plan.popular ? 'bg-red-50' : 'bg-gray-50'
+                    }`}>
+                      <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                      <div className="mt-4 flex justify-center">
+                        <span className="text-5xl font-extrabold text-gray-900">
+                          {plan.monthlyPrice}
+                        </span>
+                        <span className="ml-1 text-xl font-medium text-gray-500 self-end">
+                          /mo
+                        </span>
+                      </div>
+                    </div>
+                    <div className="px-6 py-8">
+                      <ul className="space-y-4">
+                        {plan.features.slice(0, 3).map((feature, i) => (
+                          <li key={i} className="flex items-start">
+                            <svg 
+                              className="h-5 w-5 text-green-500 flex-shrink-0 mt-1" 
+                              fill="currentColor" 
+                              viewBox="0 0 20 20"
+                            >
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            <span className="ml-3 text-gray-700">{feature}</span>
+                          </li>
+                        ))}
+                        <li className="text-gray-500 text-sm">
+                          + {plan.features.length - 3} more benefits
+                        </li>
+                      </ul>
+                      <div className="mt-8">
+                        <button
+                          onClick={() => setShowSubscription(true)}
+                          className={`w-full text-center rounded-md px-4 py-3 font-medium hover:bg-red-700 transition-colors duration-300 ${
+                            plan.popular 
+                              ? 'bg-red-600 text-white' 
+                              : plan.name === 'Elite' 
+                                ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                                : 'bg-gray-800 text-white hover:bg-gray-700'
+                          }`}
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              
+              <div className="mt-12 text-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowSubscription(true)}
+                  className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-black hover:bg-gray-800 transition-colors duration-300"
+                >
+                  Compare All Membership Plans
+                </motion.button>
+              </div>
+            </div>
+          </div>
+
+          {/* Motivation Section */}
+          <div className="py-16 bg-black text-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeIn}
+                className="text-center mb-12"
+              >
+                <h2 className="text-3xl font-extrabold sm:text-4xl">
+                  FUEL YOUR MOTIVATION
+                </h2>
+                <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-300">
+                  Words to push you beyond your limits
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-gray-900 rounded-lg overflow-hidden shadow-lg p-6 flex flex-col items-center text-center"
+                >
+                  <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mb-4">
+                    <FaFire className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">PUSH HARDER</h3>
+                  <p className="text-gray-300">
+                    "When you feel like quitting, remember why you started. The pain you feel today will be the strength you feel tomorrow."
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-gray-900 rounded-lg overflow-hidden shadow-lg p-6 flex flex-col items-center text-center"
+                >
+                  <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mb-4">
+                    <FaTrophy className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">SET GOALS</h3>
+                  <p className="text-gray-300">
+                    "A goal without a plan is just a wish. Write down your targets, track your progress, and celebrate every small victory."
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-gray-900 rounded-lg overflow-hidden shadow-lg p-6 flex flex-col items-center text-center"
+                >
+                  <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mb-4">
+                    <FaMedal className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">STAY CONSISTENT</h3>
+                  <p className="text-gray-300">
+                    "Consistency is the key. It's not about being perfect every day, but about showing up even when you don't feel like it."
+                  </p>
+                </motion.div>
+              </div>
+
+              <div className="mt-12 bg-gradient-to-r from-red-600 to-red-800 rounded-xl p-8 text-center">
+                <motion.div
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }}
+                >
+                  <h3 className="text-2xl font-bold mb-4">TODAY'S CHALLENGE</h3>
+                  <p className="text-xl mb-6">
+                    Complete 100 push-ups, 100 squats, and 100 sit-ups before the day ends!
+                  </p>
+                  <div className="flex justify-center space-x-4">
+                    <span className="inline-block bg-white text-red-600 px-3 py-1 rounded-full text-sm font-medium">
+                      Push-ups: 0/100
+                    </span>
+                    <span className="inline-block bg-white text-red-600 px-3 py-1 rounded-full text-sm font-medium">
+                      Squats: 0/100
+                    </span>
+                    <span className="inline-block bg-white text-red-600 px-3 py-1 rounded-full text-sm font-medium">
+                      Sit-ups: 0/100
+                    </span>
+                  </div>
                 </motion.div>
               </div>
             </div>

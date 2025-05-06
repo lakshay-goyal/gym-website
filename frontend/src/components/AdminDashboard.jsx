@@ -283,32 +283,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navigation */}
-      <nav className="bg-black shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <motion.div
-                initial={{ rotate: -10 }}
-                animate={{ rotate: 10 }}
-                transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-              >
-                <FaDumbbell className="h-8 w-8 text-red-500" />
-              </motion.div>
-              <span className="ml-2 text-xl font-bold text-white">IRON TEMPLE ADMIN</span>
-            </div>
-            <div className="flex items-center space-x-6">
-              <span className="text-gray-300">Welcome, {user?.username}</span>
-              <button
-                onClick={handleLogout}
-                className="text-gray-300 hover:text-red-500 transition-colors duration-300 flex items-center"
-              >
-                <FaSignOutAlt className="mr-1" /> Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <div className="flex">
