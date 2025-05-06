@@ -102,6 +102,8 @@ const AdminDashboard = () => {
     startDate: new Date().toISOString().split('T')[0]
   });
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   // Fetch all data on component mount
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -121,7 +123,7 @@ const AdminDashboard = () => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/clients', {
+      const response = await axios.get(`${baseURL}/api/clients`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setClients(response.data);
@@ -137,7 +139,7 @@ const AdminDashboard = () => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/qr/attendance', {
+      const response = await axios.get(`${baseURL}/api/qr/attendance`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { date: dateFilter, month: monthFilter }
       });
@@ -186,7 +188,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/clients/add', newClient, {
+      await axios.post(`${baseURL}/api/clients/add`, newClient, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchClients();
@@ -207,7 +209,7 @@ const AdminDashboard = () => {
   const handleDownloadInvoice = async (clientId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/clients/invoice/${clientId}`, {
+      const response = await axios.get(`${baseURL}/api/clients/invoice/${clientId}`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       });
@@ -244,7 +246,7 @@ const AdminDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/auth/update-admin', {
+      const response = await fetch(`${baseURL}/api/auth/update-admin`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

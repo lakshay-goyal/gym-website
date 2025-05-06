@@ -21,12 +21,14 @@ const LoginPage = () => {
     });
   };
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post(`${baseURL}/api/auth/login`, formData);
       const { token, user } = response.data;
 
       // Store token in localStorage

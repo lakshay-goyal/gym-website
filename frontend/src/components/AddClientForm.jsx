@@ -20,12 +20,14 @@ const AddClientForm = () => {
     });
   };
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:5000/api/clients/add',
+        `${baseURL}/api/clients/add`,
         formData,
         {
           headers: {

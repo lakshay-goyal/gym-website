@@ -8,6 +8,8 @@ const QRScanForm = ({ code }) => {
   const [success, setSuccess] = useState(false);
   const [checkInDate, setCheckInDate] = useState('');
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -15,7 +17,7 @@ const QRScanForm = ({ code }) => {
 
     try {
       const currentDate = new Date().toISOString();
-      const response = await axios.post('http://localhost:5000/api/qr/verify', {
+      const response = await axios.post(`${baseURL}/api/qr/verify`, {
         code,
         username,
         checkInDate: currentDate

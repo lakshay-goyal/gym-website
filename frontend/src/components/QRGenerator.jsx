@@ -12,13 +12,15 @@ const QRGenerator = () => {
   const [selectedQR, setSelectedQR] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     fetchQRCodes();
   }, []);
 
   const fetchQRCodes = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/qr/codes');
+      const response = await axios.get(`${baseURL}/api/qr/codes`);
       setQrCodes(response.data);
     } catch (error) {
       console.error('Error fetching QR codes:', error);
@@ -29,7 +31,7 @@ const QRGenerator = () => {
   const generateQR = async () => {
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:5000/api/qr/generate');
+      const response = await axios.post(`${baseURL}/api/qr/generate`);
       setQrCode(response.data.qrData);
       setCode(response.data.code);
       await fetchQRCodes(); // Refresh the list after generating
@@ -43,7 +45,7 @@ const QRGenerator = () => {
 
   const deleteQR = async (code) => {
     try {
-      await axios.delete(`http://localhost:5000/api/qr/${code}`);
+      await axios.delete(`${baseURL}/api/qr/${code}`);
       await fetchQRCodes(); // Refresh the list after deleting
       if (selectedQR?.code === code) {
         setSelectedQR(null);
@@ -57,7 +59,7 @@ const QRGenerator = () => {
 
   const downloadPDF = async (qrCode) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/qr/export/${qrCode.code}`, {
+      const response = await axios.get(`${baseURL}/api/qr/export/${qrCode.code}`, {
         responseType: 'blob'
       });
       
@@ -77,7 +79,7 @@ const QRGenerator = () => {
 
   const previewQR = async (qr) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/qr/generate', { code: qr.code });
+      const response = await axios.post(`${baseURL}/api/qr/generate`, { code: qr.code });
       setSelectedQR({ ...qr, qrData: response.data.qrData });
       setShowPreview(true);
     } catch (error) {

@@ -18,6 +18,8 @@ const AttendanceDashboard = ({ username }) => {
     lastMonthVisits: 0
   });
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     fetchAttendance();
     fetchStats();
@@ -31,7 +33,7 @@ const AttendanceDashboard = ({ username }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/qr/attendance', {
+      const response = await axios.get(`${baseURL}/api/qr/attendance`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -58,7 +60,7 @@ const AttendanceDashboard = ({ username }) => {
         return;
       }
 
-      const response = await axios.get('http://localhost:5000/api/qr/attendance/stats', {
+      const response = await axios.get(`${baseURL}/api/qr/attendance/stats`, {
         headers: {
           Authorization: `Bearer ${token}`
         },

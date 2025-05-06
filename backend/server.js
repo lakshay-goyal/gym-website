@@ -20,7 +20,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/qr', qrRoutes);
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/gym-attendance')
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 

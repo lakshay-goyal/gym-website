@@ -19,12 +19,13 @@ const AccountSettings = () => {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/clients/me', {
+        const response = await axios.get(`${baseURL}/api/clients/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUserData(response.data);
@@ -58,7 +59,7 @@ const AccountSettings = () => {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/clients/profile', {
+      await axios.put(`${baseURL}/api/clients/profile`, {
         username: formData.username,
         email: formData.email,
         phone: formData.phone
@@ -91,7 +92,7 @@ const AccountSettings = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/clients/password', {
+      await axios.put(`${baseURL}/api/clients/password`, {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword
       }, {

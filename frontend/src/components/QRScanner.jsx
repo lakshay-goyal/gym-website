@@ -26,6 +26,8 @@ const QRScanner = () => {
   const [inputMode, setInputMode] = useState('scan'); // 'scan' or 'manual'
   const [isCodeValid, setIsCodeValid] = useState(false);
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   // Sample valid codes - in a real app, you'd check against a database
   const validCodes = ['h6fuws42icj', 'abc123', 'qwerty'];
 
@@ -62,7 +64,7 @@ const QRScanner = () => {
   const verifyCode = async (code) => {
     try {
       // First, check if the code exists in the database
-      const response = await axios.get(`http://localhost:5000/api/qr/verify/${code}`);
+      const response = await axios.get(`${baseURL}/api/qr/verify/${code}`);
       
       if (response.data.isValid) {
         setScannedCode(code);

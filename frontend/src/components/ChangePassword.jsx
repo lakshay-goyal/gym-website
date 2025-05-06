@@ -17,6 +17,8 @@ const ChangePassword = () => {
       [e.target.name]: e.target.value
     });
   };
+  
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ const ChangePassword = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/api/auth/change-password',
+        `${baseURL}/api/auth/change-password`,
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword

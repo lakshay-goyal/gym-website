@@ -43,11 +43,13 @@ const ClientDashboard = () => {
   const [motivationalQuote, setMotivationalQuote] = useState('');
   const navigate = useNavigate();
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchClientData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/clients/me', {
+        const response = await axios.get(`${baseURL}/api/clients/me`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -73,7 +75,7 @@ const ClientDashboard = () => {
   const handleDownloadInvoice = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/clients/my-invoice', {
+      const response = await axios.get(`${baseURL}/api/clients/my-invoice`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
