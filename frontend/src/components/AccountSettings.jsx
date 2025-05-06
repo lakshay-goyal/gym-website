@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaLock, FaArrowLeft, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaUser, FaLock, FaArrowLeft, FaEnvelope, FaPhone, FaDumbbell, FaCalendarAlt } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -66,6 +66,13 @@ const AccountSettings = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
+      // Update local storage with new username if changed
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        user.username = formData.username;
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+      
       toast.success('Profile updated successfully');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update profile');
@@ -107,7 +114,7 @@ const AccountSettings = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
       </div>
     );
   }
@@ -140,15 +147,22 @@ const AccountSettings = () => {
           className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 mb-8 border border-gray-700"
         >
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center">
-              <FaUser className="text-white text-2xl" />
+            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+              <FaUser className="text-red-400 text-2xl" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-white">{userData?.username}</h2>
               <p className="text-gray-400">{userData?.email}</p>
-              <span className="inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
-                {userData?.membershipType || 'Standard'} Member
-              </span>
+              <div className="flex items-center gap-4 mt-2">
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-red-500/20 text-red-400">
+                  <FaDumbbell className="inline mr-1" />
+                  {userData?.membershipType?.replace('month', ' Month')} Plan
+                </span>
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
+                  <FaCalendarAlt className="inline mr-1" />
+                  {userData?.daysRemaining} days remaining
+                </span>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -161,7 +175,7 @@ const AccountSettings = () => {
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
               activeTab === 'profile'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-red-500 text-white'
                 : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
@@ -174,7 +188,7 @@ const AccountSettings = () => {
             onClick={() => setActiveTab('security')}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
               activeTab === 'security'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-red-500 text-white'
                 : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
@@ -203,7 +217,7 @@ const AccountSettings = () => {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Enter your username"
                   />
                 </div>
@@ -220,7 +234,7 @@ const AccountSettings = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -237,7 +251,7 @@ const AccountSettings = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Enter your phone number"
                   />
                 </div>
@@ -253,7 +267,7 @@ const AccountSettings = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full py-3 px-6 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors"
+                className="w-full px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
               >
                 Update Profile
               </motion.button>
@@ -271,8 +285,8 @@ const AccountSettings = () => {
                     name="currentPassword"
                     value={formData.currentPassword}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter current password"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Enter your current password"
                   />
                 </div>
               </div>
@@ -288,8 +302,8 @@ const AccountSettings = () => {
                     name="newPassword"
                     value={formData.newPassword}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter new password"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Enter your new password"
                   />
                 </div>
               </div>
@@ -305,8 +319,8 @@ const AccountSettings = () => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Confirm new password"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Confirm your new password"
                   />
                 </div>
               </div>
@@ -321,7 +335,7 @@ const AccountSettings = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full py-3 px-6 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors"
+                className="w-full px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
               >
                 Change Password
               </motion.button>

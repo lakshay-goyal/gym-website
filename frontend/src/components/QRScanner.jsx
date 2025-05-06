@@ -8,11 +8,15 @@ import {
   FaCheckCircle, 
   FaTimesCircle,
   FaKeyboard,
-  FaCamera
+  FaCamera,
+  FaArrowLeft
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const QRScanner = () => {
+  const navigate = useNavigate();
   const [scannedCode, setScannedCode] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [scanner, setScanner] = useState(null);
@@ -55,22 +59,29 @@ const QRScanner = () => {
     setTimeout(() => setScanStatus('scanning'), 2000);
   };
 
-  const verifyCode = (code) => {
-    // In a real app, you would make an API call here to verify the code
-    const isValid = validCodes.includes(code);
-    
-    if (isValid) {
-      setScannedCode(code);
-      setShowForm(true);
-      setScanStatus('success');
-      setIsCodeValid(true);
-      setMessage('');
-      if (scanner) {
-        scanner.clear();
+  const verifyCode = async (code) => {
+    try {
+      // First, check if the code exists in the database
+      const response = await axios.get(`http://localhost:5000/api/qr/verify/${code}`);
+      
+      if (response.data.isValid) {
+        setScannedCode(code);
+        setShowForm(true);
+        setScanStatus('success');
+        setIsCodeValid(true);
+        setMessage('');
+        if (scanner) {
+          scanner.clear();
+        }
+      } else {
+        setScanStatus('error');
+        setMessage('Invalid membership code. Please try again.');
+        setIsCodeValid(false);
       }
-    } else {
+    } catch (error) {
+      console.error('Error verifying code:', error);
       setScanStatus('error');
-      setMessage('Invalid membership code. Please try again.');
+      setMessage('Error verifying code. Please try again.');
       setIsCodeValid(false);
     }
   };
@@ -96,18 +107,28 @@ const QRScanner = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-r from-red-900 to-red-800 mb-6 shadow-lg">
-            <FaQrcode className="text-white text-4xl" />
-          </div>
-          <h2 className="text-4xl font-bold text-white mb-3 tracking-tight">IRON TEMPLE CHECK-IN</h2>
-          <p className="text-gray-200 text-lg">Scan your membership QR code or enter manually</p>
-        </motion.div>
+        {/* Header with Back Button */}
+        <div className="flex items-center gap-4 mb-8">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/client/dashboard')}
+            className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
+          >
+            <FaArrowLeft className="text-white text-xl" />
+          </motion.button>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center flex-1"
+          >
+            <div className="inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-r from-red-900 to-red-800 mb-6 shadow-lg">
+              <FaQrcode className="text-white text-4xl" />
+            </div>
+            <h2 className="text-4xl font-bold text-white mb-3 tracking-tight">IRON TEMPLE CHECK-IN</h2>
+            <p className="text-gray-200 text-lg">Scan your membership QR code or enter manually</p>
+          </motion.div>
+        </div>
 
         {/* Mode Selector */}
         <div className="flex justify-center mb-10">

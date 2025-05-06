@@ -226,4 +226,23 @@ router.get('/attendance/stats', async (req, res) => {
   }
 });
 
+// Verify QR code
+router.get('/verify/:code', async (req, res) => {
+  try {
+    const { code } = req.params;
+    
+    // Check if QR code exists and is active
+    const qrCode = await QRCode.findOne({ code, isActive: true });
+    
+    if (!qrCode) {
+      return res.json({ isValid: false });
+    }
+    
+    res.json({ isValid: true });
+  } catch (error) {
+    console.error('Error verifying QR code:', error);
+    res.status(500).json({ message: 'Error verifying QR code' });
+  }
+});
+
 module.exports = router;

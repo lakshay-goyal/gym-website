@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaCalendarAlt, FaDumbbell, FaFire, FaRunning, FaCheckCircle, FaFilter } from 'react-icons/fa';
+import { FaCalendarAlt, FaDumbbell, FaFire, FaRunning, FaCheckCircle, FaFilter, FaArrowLeft } from 'react-icons/fa';
 import { GiWeightLiftingUp } from 'react-icons/gi';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const AttendanceDashboard = ({ username }) => {
+  const navigate = useNavigate();
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -111,14 +114,19 @@ const AttendanceDashboard = ({ username }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center mb-8">
-          <GiWeightLiftingUp className="text-red-500 text-4xl mr-3" />
-          <h1 className="text-3xl font-bold text-white">
-            <span className="text-red-500">FIT</span>TRACK ATTENDANCE
-          </h1>
+        {/* Header with Back Button */}
+        <div className="flex items-center gap-4 mb-8">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/client/dashboard')}
+            className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
+          >
+            <FaArrowLeft className="text-white text-xl" />
+          </motion.button>
+          <h1 className="text-3xl font-bold text-white">Workout History</h1>
         </div>
         
         {/* Stats Cards */}

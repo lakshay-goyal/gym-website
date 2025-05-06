@@ -16,7 +16,8 @@ import {
   FaFire,
   FaTrophy,
   FaHeartbeat,
-  FaMedal
+  FaMedal,
+  FaArrowLeft
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
@@ -101,14 +102,6 @@ const ClientDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white">     
-
-      {/* Debug Info - Remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 right-4 bg-black/80 p-4 rounded-lg text-xs text-white z-50">
-          <pre>{JSON.stringify(clientData, null, 2)}</pre>
-        </div>
-      )}
-
       {/* Hero Section with Membership Status */}
       <div className="relative bg-gradient-to-r from-red-900 to-black">
         <div className="absolute inset-0 bg-black opacity-40"></div>
@@ -375,7 +368,9 @@ const ClientDashboard = () => {
             </div>
             <h3 className="text-2xl font-bold text-white mb-3">Check In/Out</h3>
             <p className="text-gray-300 mb-4">Scan your QR code to track your workout</p>
-            <span className="text-red-400 font-medium text-lg">Go to Scanner →</span>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-red-400 font-medium text-lg">Go to Scanner →</span>
+            </div>
           </motion.div>
 
           <motion.div 
@@ -388,7 +383,9 @@ const ClientDashboard = () => {
             </div>
             <h3 className="text-2xl font-bold text-white mb-3">Workout History</h3>
             <p className="text-gray-300 mb-4">View your attendance and progress</p>
-            <span className="text-blue-400 font-medium text-lg">View History →</span>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-blue-400 font-medium text-lg">View History →</span>
+            </div>
           </motion.div>
 
           <motion.div 

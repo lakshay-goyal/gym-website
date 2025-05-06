@@ -7,6 +7,7 @@ import ClientDashboard from './components/ClientDashboard';
 import QRGenerator from './components/QRGenerator';
 import QRScanner from './components/QRScanner';
 import AttendanceDashboard from './components/AttendanceDashboard';
+import AccountSettings from './components/AccountSettings';
 
 const PrivateRoute = ({ children, role }) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -65,6 +66,14 @@ function App() {
           element={
             <PrivateRoute role="client">
               <AttendanceDashboard username={JSON.parse(localStorage.getItem('user'))?.username} />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/client/account-settings"
+          element={
+            <PrivateRoute role="client">
+              <AccountSettings />
             </PrivateRoute>
           }
         />
