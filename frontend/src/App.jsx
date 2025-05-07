@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import NavBar from './components/NavBar';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
@@ -11,7 +12,7 @@ import AttendanceDashboard from './components/AttendanceDashboard';
 import AccountSettings from './components/AccountSettings';
 
 const PrivateRoute = ({ children, role }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const { user } = useAuth();
   
   if (!user) {
     return <Navigate to="/login" />;
@@ -24,7 +25,9 @@ const PrivateRoute = ({ children, role }) => {
   return children;
 };
 
-function App() {
+function AppRoutes() {
+  const { user } = useAuth();
+  
   return (
     <Router>
       <NavBar />
@@ -67,7 +70,7 @@ function App() {
           path="/client/attendance"
           element={
             <PrivateRoute role="client">
-              <AttendanceDashboard username={JSON.parse(localStorage.getItem('user'))?.username} />
+              <AttendanceDashboard username={user?.username} />
             </PrivateRoute>
           }
         />
@@ -81,6 +84,14 @@ function App() {
         />
       </Routes>
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
 
