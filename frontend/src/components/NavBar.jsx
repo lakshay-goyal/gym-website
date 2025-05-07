@@ -54,7 +54,7 @@ const NavBar = () => {
             >
               <FaDumbbell className="h-8 w-8 text-red-500" />
             </motion.div>
-            <span className="ml-2 text-xl font-bold text-white">IRON TEMPLE</span>
+            <span className="ml-2 text-xl font-bold text-white">Myo-Plus Fitness</span>
           </div>
           
           {/* Mobile menu button */}
