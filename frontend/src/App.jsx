@@ -10,6 +10,7 @@ import QRGenerator from './components/QRGenerator';
 import QRScanner from './components/QRScanner';
 import AttendanceDashboard from './components/AttendanceDashboard';
 import AccountSettings from './components/AccountSettings';
+import TrainerManagement from './components/TrainerManagement';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -39,6 +40,14 @@ function AppRoutes() {
           element={
             <PrivateRoute role="admin">
               <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/trainers"
+          element={
+            <PrivateRoute role="admin">
+              <TrainerManagement />
             </PrivateRoute>
           }
         />

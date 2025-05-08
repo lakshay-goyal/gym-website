@@ -14,13 +14,15 @@ import {
   FaMoneyBillWave,
   FaIdCard,
   FaBars,
-  FaArrowLeft
+  FaArrowLeft,
+  FaUsers
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import QRGenerator from './QRGenerator';
+import TrainerManagement from './TrainerManagement';
 
 // Animation variants
 const fadeIn = {
@@ -308,6 +310,7 @@ const AdminDashboard = () => {
       case 'attendance': return 'Attendance Records';
       case 'qrGenerator': return 'QR Generator';
       case 'settings': return 'Settings';
+      case 'trainers': return 'Trainer Management';
       default: return 'Dashboard';
     }
   };
@@ -342,6 +345,17 @@ const AdminDashboard = () => {
                     className={`w-full text-left px-4 py-2 rounded flex items-center ${activeTab === 'dashboard' ? 'bg-red-600 text-white' : 'hover:bg-gray-800'}`}
                   >
                     <FaChartLine className="mr-3" /> Dashboard
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      setActiveTab('trainers');
+                      if (isMobile) setIsSidebarOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 rounded flex items-center ${activeTab === 'trainers' ? 'bg-red-600 text-white' : 'hover:bg-gray-800'}`}
+                  >
+                    <FaUsers className="mr-3" /> Trainer Management
                   </button>
                 </li>
                 <li>
@@ -935,6 +949,24 @@ const AdminDashboard = () => {
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800">QR Generator</h1>
               </div>
               <QRGenerator />
+            </motion.div>
+          )}
+
+          {/* Trainer Management Tab */}
+          {activeTab === 'trainers' && (
+            <motion.div initial="hidden" animate="visible" variants={fadeIn}>
+              <div className="flex items-center mb-4 md:mb-6">
+                {isMobile && (
+                  <button 
+                    onClick={toggleSidebar}
+                    className="mr-3 text-gray-700"
+                  >
+                    <FaBars className="h-5 w-5" />
+                  </button>
+                )}
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Trainer Management</h1>
+              </div>
+              <TrainerManagement />
             </motion.div>
           )}
 
