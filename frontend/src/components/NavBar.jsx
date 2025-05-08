@@ -105,6 +105,17 @@ const NavBar = () => {
                   <span>Home</span>
                 </button>
                 <button
+                  onClick={() => handleNavigation('/qr-scanner')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-2 transition duration-300 ${
+                    activeTab === '/qr-scanner'
+                      ? 'text-white bg-red-600'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  }`}
+                >
+                  <FaQrcode className="h-5 w-5" />
+                  <span>Scan QR</span>
+                </button>
+                <button
                   onClick={() => handleNavigation('/login')}
                   className="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 transition duration-300 shadow-lg transform hover:scale-105 flex items-center space-x-2"
                 >
@@ -221,6 +232,17 @@ const NavBar = () => {
               >
                 <FaRunning className="h-5 w-5" />
                 <span>Home</span>
+              </button>
+              <button
+                onClick={() => handleNavigation('/qr-scanner')}
+                className={`w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2 transition duration-300 ${
+                  activeTab === '/qr-scanner'
+                    ? 'text-white bg-red-600'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                <FaQrcode className="h-5 w-5" />
+                <span>Scan QR</span>
               </button>
               <button
                 onClick={() => handleNavigation('/login')}

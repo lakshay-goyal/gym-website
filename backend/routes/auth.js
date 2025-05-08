@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Trainer = require('../models/Trainer');
 
 // Middleware to verify token
 const verifyToken = async (req, res, next) => {
@@ -119,6 +120,38 @@ router.post('/change-password', verifyToken, async (req, res) => {
     await req.user.save();
 
     res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Verify user credentials
+router.post('/verify', async (req, res) => {
+  try {
+    const { username, password, role } = req.body;
+
+    let user;
+    if (role === 'trainer') {
+      user = await Trainer.findOne({ username });
+      if (!user) {
+        return res.status(200).json({ isValid: false, message: 'Invalid credentials' });
+      }
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(200).json({ isValid: false, message: 'Invalid credentials' });
+      }
+      return res.json({ isValid: true, role: 'trainer' });
+    } else {
+      user = await User.findOne({ username, role: 'client' });
+      if (!user) {
+        return res.status(200).json({ isValid: false, message: 'Invalid credentials' });
+      }
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(200).json({ isValid: false, message: 'Invalid credentials' });
+      }
+      return res.json({ isValid: true, role: 'client' });
+    }
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

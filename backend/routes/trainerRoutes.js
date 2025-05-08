@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Trainer = require('../models/Trainer');
 const adminAuth = require('../middleware/admin');
+const TrainerAttendance = require('../models/TrainerAttendance');
 
 // Get all trainers
 router.get('/', adminAuth, async (req, res) => {
@@ -102,6 +103,44 @@ router.delete('/:id', adminAuth, async (req, res) => {
     res.json({ message: 'Trainer deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting trainer', error: error.message });
+  }
+});
+
+// Record trainer attendance
+router.post('/attendance', async (req, res) => {
+  try {
+    const { username, code, checkInDate } = req.body;
+    if (!username || !code || !checkInDate) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Check if trainer has already checked in today
+    const today = new Date(checkInDate);
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const existingAttendance = await TrainerAttendance.findOne({
+      trainerUsername: username,
+      checkInDate: {
+        $gte: today,
+        $lt: tomorrow
+      }
+    });
+
+    if (existingAttendance) {
+      return res.status(400).json({ message: 'You have already checked in today' });
+    }
+
+    const attendance = new TrainerAttendance({
+      trainerUsername: username,
+      code,
+      checkInDate
+    });
+    await attendance.save();
+    res.status(201).json({ message: 'Trainer attendance recorded', attendance });
+  } catch (error) {
+    res.status(500).json({ message: 'Error recording trainer attendance', error: error.message });
   }
 });
 

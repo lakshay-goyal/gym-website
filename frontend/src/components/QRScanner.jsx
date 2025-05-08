@@ -114,7 +114,7 @@ const QRScanner = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate('/client/dashboard')}
+            onClick={() => navigate('/')}
             className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
           >
             <FaArrowLeft className="text-white text-xl" />

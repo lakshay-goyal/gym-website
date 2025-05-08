@@ -35,6 +35,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/qr-scanner" element={<QRScanner />} />
         <Route
           path="/admin/dashboard"
           element={

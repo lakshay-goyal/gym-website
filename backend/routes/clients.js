@@ -445,4 +445,52 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
   }
 });
 
+// Update client profile
+router.put('/profile', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const client = await Client.findOne({ user: decoded.userId });
+
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+
+    const { username, email, phone } = req.body;
+
+    // Check if username or email is being changed and if it's already in use
+    if (username !== client.username || email !== client.email) {
+      const existingClient = await Client.findOne({
+        $or: [
+          { username, _id: { $ne: client._id } },
+          { email, _id: { $ne: client._id } }
+        ]
+      });
+      
+      if (existingClient) {
+        if (existingClient.username === username) {
+          return res.status(400).json({ message: 'Username already in use' });
+        }
+        if (existingClient.email === email) {
+          return res.status(400).json({ message: 'Email already in use' });
+        }
+      }
+    }
+
+    // Update client details
+    client.username = username;
+    client.email = email;
+    client.phone = phone;
+
+    await client.save();
+    res.json(client);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating profile', error: error.message });
+  }
+});
+
 module.exports = router; 

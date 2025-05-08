@@ -18,7 +18,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/auth');
 const clientRoutes = require('./routes/clientRoutes');
 const qrRoutes = require('./routes/qrRoutes');
 const trainerRoutes = require('./routes/trainerRoutes');
