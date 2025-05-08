@@ -53,7 +53,7 @@ const calculateEndDate = (startDate, membershipType) => {
 // Add new client
 router.post('/add', verifyAdmin, async (req, res) => {
   try {
-    const { username, email, phone, membershipType, startDate } = req.body;
+    const { username, email, phone, membershipType, startDate, trainer } = req.body;
 
     // Check if username already exists
     const existingUser = await User.findOne({ username });
@@ -81,7 +81,8 @@ router.post('/add', verifyAdmin, async (req, res) => {
       membershipType,
       startDate,
       endDate,
-      user: user._id
+      user: user._id,
+      trainer: trainer || null // Add trainer assignment
     });
 
     await client.save();
@@ -128,7 +129,9 @@ router.get('/me', async (req, res) => {
 // Get all clients
 router.get('/', verifyAdmin, async (req, res) => {
   try {
-    const clients = await Client.find().select('-__v');
+    const clients = await Client.find()
+      .populate('trainer', 'username')
+      .select('-__v');
     res.json(clients);
   } catch (error) {
     console.error('Error fetching clients:', error);
@@ -418,6 +421,27 @@ router.get('/my-invoice', async (req, res) => {
   } catch (error) {
     console.error('Error generating invoice:', error);
     res.status(500).json({ message: 'Error generating invoice' });
+  }
+});
+
+// Delete client
+router.delete('/:id', verifyAdmin, async (req, res) => {
+  try {
+    const client = await Client.findById(req.params.id);
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+
+    // Delete the associated user account
+    await User.findByIdAndDelete(client.user);
+
+    // Delete the client
+    await client.deleteOne();
+
+    res.json({ message: 'Client deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting client:', error);
+    res.status(500).json({ message: 'Error deleting client' });
   }
 });
 

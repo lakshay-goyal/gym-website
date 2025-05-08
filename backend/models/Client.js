@@ -16,21 +16,30 @@ const clientSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
+    required: true,  
     trim: true
   },
   membershipType: {
     type: String,
     enum: ['1month', '3month', '6month'],
-    default: '1month'
+    required: true
   },
   startDate: {
     type: Date,
-    required: true
+    default: Date.now
   },
   endDate: {
     type: Date,
     required: true
+  },
+  trainer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Trainer',
+    default: null
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,

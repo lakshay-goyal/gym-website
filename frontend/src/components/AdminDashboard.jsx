@@ -107,6 +107,7 @@ const AdminDashboard = () => {
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [trainers, setTrainers] = useState([]);
 
   const baseURL = import.meta.env.VITE_BACKEND_URL;
 
@@ -126,6 +127,7 @@ const AdminDashboard = () => {
       setUser(storedUser);
     }
     fetchClients();
+    fetchTrainers();
     fetchAttendance();
   }, []);
 
@@ -147,6 +149,18 @@ const AdminDashboard = () => {
       console.error('Error fetching clients:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchTrainers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${baseURL}/api/trainers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTrainers(response.data);
+    } catch (error) {
+      console.error('Error fetching trainers:', error);
     }
   };
 
@@ -238,6 +252,22 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error downloading invoice:', error);
       alert('Failed to download invoice');
+    }
+  };
+
+  const handleDeleteClient = async (clientId) => {
+    if (window.confirm('Are you sure you want to delete this client? This action cannot be undone.')) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`${baseURL}/api/clients/${clientId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchClients(); // Refresh the client list
+        alert('Client deleted successfully');
+      } catch (error) {
+        console.error('Error deleting client:', error);
+        alert(error.response?.data?.message || 'Failed to delete client');
+      }
     }
   };
 
@@ -668,6 +698,7 @@ const AdminDashboard = () => {
                           <th className="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Client</th>
                           <th className="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Contact</th>
                           <th className="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Membership</th>
+                          <th className="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Trainer</th>
                           <th className="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
                           <th className="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                         </tr>
@@ -703,6 +734,11 @@ const AdminDashboard = () => {
                                 </div>
                               </td>
                               <td className="px-4 py-3 md:px-6 md:py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {client.trainer ? client.trainer.username : 'Not Assigned'}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 md:px-6 md:py-4 whitespace-nowrap">
                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                   isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                 }`}>
@@ -718,6 +754,12 @@ const AdminDashboard = () => {
                                   className="text-red-600 hover:text-red-900 mr-2 md:mr-3 text-sm md:text-base"
                                 >
                                   Invoice
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteClient(client._id)}
+                                  className="text-red-600 hover:text-red-900 text-sm md:text-base"
+                                >
+                                  Delete
                                 </button>
                               </td>
                             </tr>
@@ -777,6 +819,21 @@ const AdminDashboard = () => {
                       className="w-full px-3 py-2 border rounded"
                       required
                     />
+                  </div>
+                  <div className="mb-3 md:mb-4">
+                    <label className="block text-gray-700 mb-1 md:mb-2">Assign Trainer</label>
+                    <select
+                      value={newClient.trainer || ''}
+                      onChange={(e) => setNewClient({...newClient, trainer: e.target.value})}
+                      className="w-full px-3 py-2 border rounded"
+                    >
+                      <option value="">Select a trainer</option>
+                      {trainers.map((trainer) => (
+                        <option key={trainer._id} value={trainer._id}>
+                          {trainer.username}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="mb-3 md:mb-4">
                     <label className="block text-gray-700 mb-1 md:mb-2">Membership Type</label>
