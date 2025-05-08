@@ -13,6 +13,15 @@ const TrainerDashboard = () => {
   const [error, setError] = useState('');
   const [attendanceError, setAttendanceError] = useState('');
   const [trainerAttendanceError, setTrainerAttendanceError] = useState('');
+  const [showAddClientForm, setShowAddClientForm] = useState(false);
+  const [newClient, setNewClient] = useState({
+    username: '',
+    email: '',
+    phone: '',
+    membershipType: '1month'
+  });
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -78,6 +87,69 @@ const TrainerDashboard = () => {
     });
   };
 
+  const handleAddClient = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+
+    // Validate form data
+    if (!newClient.username || !newClient.email || !newClient.phone) {
+      setFormError('All fields are required');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newClient.email)) {
+      setFormError('Please enter a valid email address');
+      return;
+    }
+
+    // Validate phone format (basic validation)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(newClient.phone.replace(/\D/g, ''))) {
+      setFormError('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/trainers/clients`,
+        newClient,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setFormSuccess('Client added successfully!');
+      setNewClient({
+        username: '',
+        email: '',
+        phone: '',
+        membershipType: '1month'
+      });
+      setShowAddClientForm(false);
+      
+      // Refresh clients list
+      fetchClients();
+    } catch (err) {
+      console.error('Error adding client:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to add client. Please try again.';
+      setFormError(errorMessage);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewClient(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Trainer Dashboard</h1>
@@ -136,6 +208,99 @@ const TrainerDashboard = () => {
               </tbody>
             </table>
           </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Add New Client</h2>
+          <button
+            onClick={() => setShowAddClientForm(!showAddClientForm)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            {showAddClientForm ? 'Cancel' : 'Add New Client'}
+          </button>
+        </div>
+
+        {showAddClientForm && (
+          <form onSubmit={handleAddClient} className="space-y-4">
+            {formError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {formError}
+              </div>
+            )}
+            {formSuccess && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                {formSuccess}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={newClient.username}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={newClient.email}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={newClient.phone}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Membership Type
+              </label>
+              <select
+                name="membershipType"
+                value={newClient.membershipType}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="1month">1 Month</option>
+                <option value="3month">3 Months</option>
+                <option value="6month">6 Months</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Add Client
+            </button>
+          </form>
         )}
       </div>
 

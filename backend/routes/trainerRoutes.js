@@ -5,6 +5,7 @@ const adminAuth = require('../middleware/admin');
 const TrainerAttendance = require('../models/TrainerAttendance');
 const Client = require('../models/Client');
 const Attendance = require('../models/Attendance');
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 // Get all trainers
@@ -222,6 +223,77 @@ router.get('/attendance', verifyTrainerToken, async (req, res) => {
     res.json(attendance);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Add new client (trainer only)
+router.post('/clients', verifyTrainerToken, async (req, res) => {
+  try {
+    const { username, email, phone, membershipType } = req.body;
+    
+    // Check if client with username or email already exists
+    const existingClient = await Client.findOne({ 
+      $or: [{ username }, { email }] 
+    });
+    
+    if (existingClient) {
+      if (existingClient.username === username) {
+        return res.status(400).json({ message: 'Username already exists' });
+      }
+      if (existingClient.email === email) {
+        return res.status(400).json({ message: 'Email already exists' });
+      }
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    // Create new user first
+    const user = new User({
+      username,
+      password: username, // Set default password same as username
+      role: 'client'
+    });
+
+    await user.save();
+
+    // Calculate end date based on membership type
+    const startDate = new Date();
+    const endDate = new Date();
+    switch (membershipType) {
+      case '1month':
+        endDate.setMonth(endDate.getMonth() + 1);
+        break;
+      case '3month':
+        endDate.setMonth(endDate.getMonth() + 3);
+        break;
+      case '6month':
+        endDate.setMonth(endDate.getMonth() + 6);
+        break;
+      default:
+        endDate.setMonth(endDate.getMonth() + 1);
+    }
+
+    // Create new client
+    const client = new Client({
+      username,
+      email,
+      phone,
+      membershipType,
+      startDate,
+      endDate,
+      trainer: req.trainer._id,
+      user: user._id // Link to the created user
+    });
+
+    await client.save();
+    res.status(201).json(client);
+  } catch (error) {
+    console.error('Error adding client:', error);
+    res.status(500).json({ message: 'Error adding client', error: error.message });
   }
 });
 
