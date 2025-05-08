@@ -72,7 +72,37 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Find user
+    // First try to find a trainer
+    let trainer = await Trainer.findOne({ username });
+    if (trainer) {
+      // Check trainer password
+      const isMatch = await trainer.comparePassword(password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+
+      // Generate JWT token for trainer
+      const token = jwt.sign(
+        { userId: trainer._id, role: 'trainer' },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '1h' }
+      );
+
+      return res.json({
+        token,
+        user: {
+          id: trainer._id,
+          username: trainer.username,
+          email: trainer.email,
+          phone: trainer.phone,
+          specialization: trainer.specialization,
+          experience: trainer.experience,
+          role: 'trainer'
+        }
+      });
+    }
+
+    // If not a trainer, try to find a regular user
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
