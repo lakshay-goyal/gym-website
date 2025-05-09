@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const clientRoutes = require('./routes/clients');
 const qrRoutes = require('./routes/qr');
 const trainerRoutes = require('./routes/trainerRoutes');
+const contactRouter = require('./routes/contact');
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/qr', qrRoutes);
 app.use('/api/trainers', trainerRoutes);
+app.use('/api/contact', contactRouter);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)

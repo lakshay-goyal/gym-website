@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { 
   FaDumbbell, FaUser, FaLock, FaQrcode, FaRunning, 
   FaHeartbeat, FaApple, FaRegCreditCard, FaFire, 
-  FaTrophy, FaMedal, FaQuoteLeft, FaQuoteRight, FaClock 
+  FaTrophy, FaMedal, FaQuoteLeft, FaQuoteRight, FaClock,
+  FaEnvelope
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import QRScanner from './QRScanner';
+import ContactForm from './ContactForm';
 
 const LandingPage = () => {
   const [showScanner, setShowScanner] = useState(false);
@@ -14,6 +16,7 @@ const LandingPage = () => {
   const [showSubscription, setShowSubscription] = useState(false);
   const [motivationalQuote, setMotivationalQuote] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showContactForm, setShowContactForm] = useState(false);
 
   // Gym background images for hero section rotation
   const gymImages = [
@@ -166,7 +169,6 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-
       {showScanner ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <QRScanner />
@@ -286,6 +288,10 @@ const LandingPage = () => {
         </div>
       ) : (
         <>
+          {showContactForm && (
+            <ContactForm onClose={() => setShowContactForm(false)} />
+          )}
+          
           {/* Hero Section with Background Image */}
           <div className="relative bg-black overflow-hidden h-screen">
             <div className="absolute inset-0 z-0 opacity-70 transition-opacity duration-1000 ease-in-out">
@@ -332,10 +338,11 @@ const LandingPage = () => {
                       whileTap={{ scale: 0.95 }}
                     >
                       <button
-                        onClick={() => setShowSubscription(true)}
+                        onClick={() => setShowContactForm(true)}
                         className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-black bg-opacity-60 hover:bg-opacity-70 md:py-4 md:text-lg md:px-10 transition-colors duration-300"
                       >
-                        VIEW PLANS
+                        <FaEnvelope className="mr-2" />
+                        Contact Us
                       </button>
                     </motion.div>
                   </div>
