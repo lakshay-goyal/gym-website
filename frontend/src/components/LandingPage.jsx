@@ -1144,10 +1144,10 @@ const LandingPage = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Visit Us</h3>
                   <address className="mt-4 not-italic text-gray-400">
-                    <p>123 Fitness Avenue</p>
-                    <p>New York, NY 10001</p>
-                    <p className="mt-4">Email: info@irontemple.com</p>
-                    <p>Phone: (123) 456-7890</p>
+                    <p>2nd Floor, Wedding Mall</p>
+                    <p>Saraswati Vihar, Pitampura</p>
+                    <p>Delhi, 110034</p>
+                    <p className="mt-4">Email: myoplusgym@gmail.com</p>
                   </address>
                 </div>
               </div>
