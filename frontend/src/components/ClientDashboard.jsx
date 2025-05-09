@@ -44,6 +44,13 @@ const ClientDashboard = () => {
   const [clientData, setClientData] = useState(null);
   const [error, setError] = useState('');
   const [motivationalQuote, setMotivationalQuote] = useState('');
+  const [attendanceStats, setAttendanceStats] = useState({
+    totalVisits: 0,
+    currentMonthVisits: 0,
+    lastWeekVisits: 0
+  });
+  const [attendanceLoading, setAttendanceLoading] = useState(true);
+  const [attendanceError, setAttendanceError] = useState('');
   const navigate = useNavigate();
 
   const baseURL = import.meta.env.VITE_BACKEND_URL;
@@ -66,8 +73,46 @@ const ClientDashboard = () => {
       }
     };
 
+    const fetchAttendanceStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${baseURL}/api/qr/attendance`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          params: { username: clientData?.username }
+        });
+
+        // Calculate stats from attendance data
+        const now = new Date();
+        const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfLastWeek = new Date(now);
+        startOfLastWeek.setDate(now.getDate() - 7);
+
+        const stats = {
+          totalVisits: response.data.length,
+          currentMonthVisits: response.data.filter(record => 
+            new Date(record.checkInDate) >= startOfCurrentMonth
+          ).length,
+          lastWeekVisits: response.data.filter(record => 
+            new Date(record.checkInDate) >= startOfLastWeek
+          ).length
+        };
+
+        setAttendanceStats(stats);
+        setAttendanceLoading(false);
+      } catch (err) {
+        console.error('Error fetching attendance stats:', err);
+        setAttendanceError('Failed to fetch attendance statistics');
+        setAttendanceLoading(false);
+      }
+    };
+
     fetchClientData();
-  }, []);
+    if (clientData?.username) {
+      fetchAttendanceStats();
+    }
+  }, [clientData?.username]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -96,13 +141,6 @@ const ClientDashboard = () => {
       console.error('Error downloading invoice:', error);
       alert('Failed to download invoice');
     }
-  };
-
-  // Calculate progress metrics (mock data for demo)
-  const progressMetrics = {
-    workoutsThisWeek: Math.floor(Math.random() * 5) + 2,
-    workoutsThisMonth: Math.floor(Math.random() * 15) + 5,
-    lastWorkout: "Yesterday"
   };
 
   return (
@@ -351,43 +389,89 @@ const ClientDashboard = () => {
           <FaChartLine className="inline mr-2 text-red-500" /> Your Fitness Journey
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Workouts This Week */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* Total Workouts */}
           <motion.div 
             whileHover={{ scale: 1.03 }}
-            className="bg-gray-800/50 p-8 rounded-2xl shadow-xl border border-gray-700/50 backdrop-blur-sm"
+            className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700/50 backdrop-blur-sm"
           >
             <div className="flex items-center mb-6">
-              <div className="p-4 bg-red-900/30 rounded-full mr-4">
-                <FaRunning className="text-red-400 text-2xl" />
+              <div className="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full mr-4 shadow-lg">
+                <FaDumbbell className="text-white text-2xl" />
               </div>
-              <h3 className="text-2xl font-bold text-white">Workouts This Week</h3>
+              <h3 className="text-2xl font-bold text-white">Total Workouts</h3>
             </div>
-            <p className="text-5xl font-bold text-white mb-4">{progressMetrics.workoutsThisWeek}</p>
-            <p className="text-gray-300 text-lg">
-              {progressMetrics.workoutsThisWeek >= 4 ? 
-                "🔥 You're on fire! Keep it up!" : 
-                "You're making progress! Aim for 4+ workouts this week."}
-            </p>
+            {attendanceLoading ? (
+              <div className="animate-pulse">
+                <div className="h-12 bg-gray-700 rounded mb-4"></div>
+                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              </div>
+            ) : (
+              <>
+                <p className="text-5xl font-bold text-white mb-4">{attendanceStats.totalVisits}</p>
+                <p className="text-gray-300 text-lg">
+                  {attendanceStats.totalVisits > 10 ? 
+                    "🌟 You're a fitness warrior!" : 
+                    "Keep pushing! Every workout counts."}
+                </p>
+              </>
+            )}
           </motion.div>
 
-          {/* Last Workout */}
+          {/* This Month's Workouts */}
           <motion.div 
             whileHover={{ scale: 1.03 }}
-            className="bg-gray-800/50 p-8 rounded-2xl shadow-xl border border-gray-700/50 backdrop-blur-sm"
+            className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700/50 backdrop-blur-sm"
           >
             <div className="flex items-center mb-6">
-              <div className="p-4 bg-green-900/30 rounded-full mr-4">
-                <FaClock className="text-green-400 text-2xl" />
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mr-4 shadow-lg">
+                <FaCalendarAlt className="text-white text-2xl" />
               </div>
-              <h3 className="text-2xl font-bold text-white">Last Workout</h3>
+              <h3 className="text-2xl font-bold text-white">This Month</h3>
             </div>
-            <p className="text-5xl font-bold text-white mb-4">{progressMetrics.lastWorkout}</p>
-            <p className="text-gray-300 text-lg">
-              {progressMetrics.lastWorkout === "Today" ? 
-                "Great job staying active today!" : 
-                "Ready for your next session?"}
-            </p>
+            {attendanceLoading ? (
+              <div className="animate-pulse">
+                <div className="h-12 bg-gray-700 rounded mb-4"></div>
+                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              </div>
+            ) : (
+              <>
+                <p className="text-5xl font-bold text-white mb-4">{attendanceStats.currentMonthVisits}</p>
+                <p className="text-gray-300 text-lg">
+                  {attendanceStats.currentMonthVisits >= 12 ? 
+                    "🔥 Amazing consistency!" : 
+                    "Aim for 12+ workouts this month."}
+                </p>
+              </>
+            )}
+          </motion.div>
+
+          {/* Last Week's Workouts */}
+          <motion.div 
+            whileHover={{ scale: 1.03 }}
+            className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700/50 backdrop-blur-sm"
+          >
+            <div className="flex items-center mb-6">
+              <div className="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-full mr-4 shadow-lg">
+                <FaClock className="text-white text-2xl" />
+              </div>
+              <h3 className="text-2xl font-bold text-white">Last Week</h3>
+            </div>
+            {attendanceLoading ? (
+              <div className="animate-pulse">
+                <div className="h-12 bg-gray-700 rounded mb-4"></div>
+                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              </div>
+            ) : (
+              <>
+                <p className="text-5xl font-bold text-white mb-4">{attendanceStats.lastWeekVisits}</p>
+                <p className="text-gray-300 text-lg">
+                  {attendanceStats.lastWeekVisits >= 4 ? 
+                    "💪 You're crushing it!" : 
+                    "Aim for 4+ workouts per week."}
+                </p>
+              </>
+            )}
           </motion.div>
         </div>
 
