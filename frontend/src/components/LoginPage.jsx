@@ -93,7 +93,7 @@ const LoginPage = () => {
             >
               <FaDumbbell className="h-10 w-10 text-red-500" />
             </motion.div>
-            <span className="ml-2 text-3xl font-bold text-white">IRON TEMPLE</span>
+            <span className="ml-2 text-3xl font-bold text-white">Myo-Plus Fitness</span>
           </div>
         </motion.div>
 
@@ -212,7 +212,7 @@ const LoginPage = () => {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-gray-900 bg-opacity-80 text-gray-400">
-                    NEW TO IRON TEMPLE?
+                    NEW TO Myo-Plus Fitness?
                   </span>
                 </div>
               </div>

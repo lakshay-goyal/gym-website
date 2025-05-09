@@ -112,9 +112,25 @@ router.get('/me', async (req, res) => {
       return res.status(404).json({ message: 'Client not found' });
     }
 
-    // Calculate days remaining
+    // Use the actual stored dates from the database
+    const startDate = new Date(client.startDate);
     const endDate = new Date(client.endDate);
+    
+    // Calculate days remaining
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    endDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+    // If start date is in the future, return total days of membership
+    if (startDate > today) {
+      const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+      return res.json({
+        ...client.toObject(),
+        daysRemaining: totalDays
+      });
+    }
+
+    // If membership has started, calculate remaining days
     const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
     res.json({

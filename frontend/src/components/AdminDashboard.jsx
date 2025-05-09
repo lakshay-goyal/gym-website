@@ -197,7 +197,7 @@ const AdminDashboard = () => {
           client.email || 'N/A',
           client.phone || 'N/A',
           client.membershipType || 'N/A',
-          new Date(client.startDate).toLocaleDateString(),
+          new Date(client.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
           daysRemaining,
           daysRemaining > 0 ? 'Active' : 'Expired'
         ];
@@ -207,7 +207,7 @@ const AdminDashboard = () => {
       const columns = ['Username', 'Check-in Date'];
       const data = attendance.map(record => [
         record.username || 'N/A',
-        new Date(record.checkInDate).toLocaleString()
+        new Date(record.checkInDate).toLocaleString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
       ]);
       exportToPDF(data, columns, 'Attendance Records');
     }
@@ -555,7 +555,7 @@ const AdminDashboard = () => {
                               </div>
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(record.checkInDate).toLocaleString()}
+                              {new Date(record.checkInDate).toLocaleString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </td>
                           </tr>
                         ))}
@@ -626,12 +626,12 @@ const AdminDashboard = () => {
                         </div>
                         <div>
                           <p><strong>Membership:</strong> {selectedClient.membershipType}</p>
-                          <p><strong>Start Date:</strong> {new Date(selectedClient.startDate).toLocaleDateString()}</p>
+                          <p><strong>Start Date:</strong> {new Date(selectedClient.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                           <p><strong>End Date:</strong> {new Date(new Date(selectedClient.startDate).setMonth(
                             new Date(selectedClient.startDate).getMonth() + 
                             (selectedClient.membershipType === '1month' ? 1 : 
                              selectedClient.membershipType === '3month' ? 3 : 6)
-                          )).toLocaleDateString()}</p>
+                          )).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                         </div>
                       </div>
                       <div className="mt-3 md:mt-4">
@@ -718,7 +718,7 @@ const AdminDashboard = () => {
                                   <div className="ml-3 md:ml-4">
                                     <div className="text-sm font-medium text-gray-900">{client.username}</div>
                                     <div className="text-xs md:text-sm text-gray-500">
-                                      Joined: {new Date(client.startDate).toLocaleDateString()}
+                                      Joined: {new Date(client.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                     </div>
                                   </div>
                                 </div>
@@ -974,7 +974,7 @@ const AdminDashboard = () => {
                               </div>
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(record.checkInDate).toLocaleString()}
+                              {new Date(record.checkInDate).toLocaleString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4 whitespace-nowrap">
                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

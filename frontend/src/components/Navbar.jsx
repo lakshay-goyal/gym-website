@@ -87,7 +87,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <FaDumbbell className="text-red-500 text-2xl mr-2" />
-              <span className="text-white text-xl font-bold">IRON TEMPLE</span>
+              <span className="text-white text-xl font-bold">Myo-Plus Fitness</span>
             </Link>
           </div>
 

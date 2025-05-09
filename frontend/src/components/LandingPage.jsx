@@ -101,14 +101,14 @@ const LandingPage = () => {
       name: "Sarah Johnson",
       role: "Lost 30 lbs in 6 months",
       image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&h=100&q=80",
-      quote: "IRON TEMPLE transformed my life! The trainers are amazing and the community is so supportive."
+      quote: "Myo-Plus Fitness transformed my life! The trainers are amazing and the community is so supportive."
     },
     {
       id: 2,
       name: "Mike Chen",
       role: "Bodybuilding Champion",
       image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&h=100&q=80",
-      quote: "I've been to many gyms, but the equipment and atmosphere at IRON TEMPLE is unmatched. It's my second home!"
+      quote: "I've been to many gyms, but the equipment and atmosphere at Myo-Plus Fitness is unmatched. It's my second home!"
     },
     {
       id: 3,
@@ -909,7 +909,7 @@ const LandingPage = () => {
                   READY TO TRANSFORM YOUR BODY?
                 </h2>
                 <p className="mt-4 text-xl text-red-300 max-w-2xl mx-auto">
-                  Join IRON TEMPLE today and experience the difference. Your first workout session is on us!
+                  Join Myo-Plus Fitness today and experience the difference. Your first workout session is on us!
                 </p>
                 <div className="mt-8 sm:flex sm:justify-center">
                   <motion.div
@@ -1018,7 +1018,7 @@ const LandingPage = () => {
                 <div className="space-y-6">
                   <div className="flex items-center">
                     <FaDumbbell className="h-8 w-8 text-red-500" />
-                    <span className="ml-2 text-xl font-bold">IRON TEMPLE</span>
+                    <span className="ml-2 text-xl font-bold">Myo-Plus Fitness</span>
                   </div>
                   <p className="text-gray-300">
                     Where champions are made. Transforming lives through fitness since 2010.
@@ -1077,7 +1077,7 @@ const LandingPage = () => {
               </div>
 
               <div className="mt-12 border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <p className="text-base text-gray-400">&copy; 2025 IRON TEMPLE. All rights reserved.</p>
+                <p className="text-base text-gray-400">&copy; 2025 Myo-Plus Fitness. All rights reserved.</p>
                 <div className="mt-4 md:mt-0 flex space-x-6">
                   <a href="#" className="text-gray-400 hover:text-red-500 transition-colors duration-300">
                     <FaRegCreditCard className="h-6 w-6" />

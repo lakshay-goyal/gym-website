@@ -156,30 +156,99 @@ const ClientDashboard = () => {
       {/* Membership Status Banner */}
       {clientData && (
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="flex items-center mb-4 md:mb-0">
-                <div className="p-3 bg-red-900/30 rounded-full mr-4">
-                  <FaCalendarAlt className="text-red-400 text-2xl" />
+              <div className="flex items-center mb-6 md:mb-0">
+                <div className="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full mr-4 shadow-lg">
+                  <FaCalendarAlt className="text-white text-2xl" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Membership Status</h3>
-                  <p className="text-gray-300">Valid until {new Date(clientData.endDate).toLocaleDateString()}</p>
+                  <h3 className="text-2xl font-bold text-white mb-1">Membership Status</h3>
+                  <p className="text-gray-300 text-lg">Valid until {new Date(clientData.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
               </div>
-              <div className="flex items-center">
-                <div className="text-center md:text-right">
-                  <p className="text-3xl font-bold text-white mb-1">{clientData.daysRemaining}</p>
-                  <p className="text-gray-400">Days Remaining</p>
+              <div className="flex items-center space-x-8">
+                <div className="text-center">
+                  <p className={`text-4xl font-bold mb-1 transition-colors duration-300 ${
+                    clientData.daysRemaining <= 7 ? 'text-red-400 animate-pulse' : 
+                    clientData.daysRemaining <= 14 ? 'text-yellow-400' : 
+                    'text-white'
+                  }`}>
+                    {clientData.daysRemaining}
+                  </p>
+                  <p className={`text-lg transition-colors duration-300 ${
+                    clientData.daysRemaining <= 7 ? 'text-red-300' : 
+                    clientData.daysRemaining <= 14 ? 'text-yellow-300' : 
+                    'text-gray-400'
+                  }`}>
+                    Days Remaining
+                    {clientData.daysRemaining <= 7 && (
+                      <span className="ml-2 text-sm text-red-400">(Renew Soon!)</span>
+                    )}
+                  </p>
                 </div>
-                <div className="ml-6 w-48">
-                  <div className="w-full bg-gray-700 rounded-full h-2.5">
+                <div className="w-80">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-400">Membership Progress</span>
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                      clientData.daysRemaining <= 7 ? 'text-red-400' : 
+                      clientData.daysRemaining <= 14 ? 'text-yellow-400' : 
+                      'text-gray-400'
+                    }`}>
+                      {Math.round((clientData.daysRemaining / (clientData.membershipType === '6month' ? 180 : 
+                                                              clientData.membershipType === '3month' ? 90 : 30)) * 100)}%
+                    </span>
+                  </div>
+                  <div className="relative w-full h-4 bg-gray-700 rounded-full overflow-hidden">
+                    {/* Background gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 opacity-20"></div>
+                    
+                    {/* Progress overlay */}
                     <div 
-                      className={`h-2.5 rounded-full ${
-                        clientData.daysRemaining <= 7 ? 'bg-red-500' : 'bg-green-500'
-                      }`} 
-                      style={{ width: `${Math.min(100, (clientData.daysRemaining / 30) * 100)}%` }}
+                      className={`absolute top-0 left-0 h-full transition-all duration-500 ease-out ${
+                        clientData.daysRemaining <= 7 ? 'bg-gradient-to-r from-red-500 to-red-400' :
+                        clientData.daysRemaining <= 14 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+                        'bg-gradient-to-r from-green-500 to-green-400'
+                      }`}
+                      style={{ 
+                        width: `${(clientData.daysRemaining / (clientData.membershipType === '6month' ? 180 : 
+                                                              clientData.membershipType === '3month' ? 90 : 30)) * 100}%`,
+                        boxShadow: clientData.daysRemaining <= 7 ? 
+                          '0 0 15px rgba(239, 68, 68, 0.4)' : 
+                          clientData.daysRemaining <= 14 ? 
+                          '0 0 15px rgba(234, 179, 8, 0.4)' :
+                          '0 0 10px rgba(34, 197, 94, 0.3)'
+                      }}
                     ></div>
+                    
+                    {/* Progress markers */}
+                    <div className="absolute inset-0 flex justify-between px-1">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="w-px h-full bg-gray-600"></div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Time markers */}
+                  <div className="flex justify-between mt-2 text-xs text-gray-400">
+                    <span>Start</span>
+                    <span>{clientData.membershipType === '6month' ? '3 Months' : 
+                           clientData.membershipType === '3month' ? '1.5 Months' : '15 Days'}</span>
+                    <span>{clientData.membershipType === '6month' ? '6 Months' : 
+                           clientData.membershipType === '3month' ? '3 Months' : '1 Month'}</span>
+                  </div>
+                  
+                  {/* Plan type */}
+                  <div className="mt-2 text-center">
+                    <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full transition-colors duration-300 ${
+                      clientData.daysRemaining <= 7 ? 'text-red-400 bg-red-900/20' :
+                      clientData.daysRemaining <= 14 ? 'text-yellow-400 bg-yellow-900/20' :
+                      'text-green-400 bg-green-900/20'
+                    }`}>
+                      {clientData.membershipType === '6month' ? '6 Month Plan' : 
+                       clientData.membershipType === '3month' ? '3 Month Plan' : '1 Month Plan'}
+                      {clientData.daysRemaining <= 7 && ' - Expiring Soon!'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -284,7 +353,7 @@ const ClientDashboard = () => {
                   <div className="flex items-center">
                     <span className="w-1/3 text-gray-400 font-medium">Member Since:</span>
                     <span className="w-2/3 font-medium text-white">
-                      {new Date(clientData.startDate).toLocaleDateString()}
+                      {new Date(clientData.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -319,13 +388,13 @@ const ClientDashboard = () => {
                   <div className="flex items-center">
                     <span className="w-1/3 text-gray-400 font-medium">Start Date:</span>
                     <span className="w-2/3 font-medium text-white">
-                      {new Date(clientData.startDate).toLocaleDateString()}
+                      {new Date(clientData.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <span className="w-1/3 text-gray-400 font-medium">End Date:</span>
                     <span className="w-2/3 font-medium text-white">
-                      {new Date(clientData.endDate).toLocaleDateString()}
+                      {new Date(clientData.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -412,7 +481,7 @@ const ClientDashboard = () => {
             <div className="mb-4 md:mb-0">
               <div className="flex items-center">
                 <FaDumbbell className="text-red-400 mr-3 text-2xl" />
-                <span className="text-2xl font-bold">IRON TEMPLE</span>
+                <span className="text-2xl font-bold">Myo-Plus Fitness</span>
               </div>
               <p className="text-gray-400 mt-2">Transform your body, transform your life.</p>
             </div>
@@ -428,7 +497,7 @@ const ClientDashboard = () => {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p className="text-lg">© {new Date().getFullYear()} Iron Temple Gym. All rights reserved.</p>
+            <p className="text-lg">© {new Date().getFullYear()} Myo-Plus Fitness Gym. All rights reserved.</p>
             <p className="mt-2 italic text-gray-500">"Discipline is the bridge between goals and accomplishment."</p>
           </div>
         </div>

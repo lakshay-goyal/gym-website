@@ -127,7 +127,7 @@ const QRScanner = () => {
             <div className="inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-r from-red-900 to-red-800 mb-6 shadow-lg">
               <FaQrcode className="text-white text-4xl" />
             </div>
-            <h2 className="text-4xl font-bold text-white mb-3 tracking-tight">IRON TEMPLE CHECK-IN</h2>
+            <h2 className="text-4xl font-bold text-white mb-3 tracking-tight">Myo-Plus Fitness CHECK-IN</h2>
             <p className="text-gray-200 text-lg">Scan your membership QR code or enter manually</p>
           </motion.div>
         </div>
@@ -360,7 +360,7 @@ const QRScanner = () => {
         <div className="mt-16 text-center">
           <div className="inline-flex items-center text-gray-300 text-base">
             <FaDumbbell className="mr-3 text-xl" />
-            <span>IRON TEMPLE FITNESS CLUB</span>
+            <span>Myo-Plus Fitness FITNESS CLUB</span>
           </div>
           <p className="text-gray-400 text-sm mt-3">
             Track your visits and progress with every check-in

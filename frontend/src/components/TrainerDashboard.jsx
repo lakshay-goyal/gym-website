@@ -80,10 +80,10 @@ const TrainerDashboard = () => {
   }, []);
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'long', 
       year: 'numeric',
-      month: 'short',
-      day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -210,7 +210,7 @@ const TrainerDashboard = () => {
             <div>
               <p className="text-gray-500 text-sm font-medium">Active Since</p>
               <h3 className="text-2xl font-bold text-gray-800 mt-1">
-                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}
+                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : 'N/A'}
               </h3>
             </div>
             <div className="bg-orange-100 p-3 rounded-full">
@@ -542,8 +542,8 @@ const TrainerDashboard = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {new Date(client.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {' '}
-                              {new Date(client.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              {new Date(client.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })} - {' '}
+                              {new Date(client.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </div>
                             <div className="text-sm text-gray-500">
                               {Math.ceil((new Date(client.endDate) - new Date()) / (1000 * 60 * 60 * 24))} days remaining

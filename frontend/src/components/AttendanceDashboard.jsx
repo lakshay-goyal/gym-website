@@ -281,7 +281,7 @@ const AttendanceDashboard = ({ username }) => {
                       <tr key={index} className="hover:bg-gray-700/30 transition">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-white">
-                            {new Date(record.checkInDate).toLocaleDateString()}
+                            {new Date(record.checkInDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                           </div>
                           <div className="text-sm text-gray-400">
                             {new Date(record.checkInDate).toLocaleTimeString()}
