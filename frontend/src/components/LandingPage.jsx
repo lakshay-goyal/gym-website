@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   FaDumbbell, FaUser, FaLock, FaQrcode, FaRunning, 
   FaHeartbeat, FaApple, FaRegCreditCard, FaFire, 
-  FaTrophy, FaMedal, FaQuoteLeft, FaQuoteRight 
+  FaTrophy, FaMedal, FaQuoteLeft, FaQuoteRight, FaClock 
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import QRScanner from './QRScanner';
@@ -355,6 +355,82 @@ const LandingPage = () => {
                   {dailyTips[Math.floor(Math.random() * dailyTips.length)]}
                 </p>
               </motion.div>
+            </div>
+          </div>
+
+          {/* Gym Timings Section */}
+          <div className="bg-gradient-to-r from-black to-gray-900 text-white py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeIn}
+                className="text-center mb-12"
+              >
+                <h2 className="text-3xl font-extrabold sm:text-4xl">
+                  GYM TIMINGS
+                </h2>
+                <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-300">
+                  Plan your workout schedule with our convenient timings
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-gray-800/50 rounded-xl p-8 border border-gray-700/50 backdrop-blur-sm"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="p-4 bg-red-900/30 rounded-full mr-4">
+                      <FaClock className="text-red-400 text-2xl" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Weekdays</h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center py-3 border-b border-gray-700">
+                      <span className="text-lg font-medium text-gray-300">Monday - Saturday</span>
+                      <span className="text-lg text-white font-semibold">6:00 AM - 10:00 PM</span>
+                    </div>
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-lg font-medium text-gray-300">Sunday</span>
+                      <span className="text-lg text-red-400 font-semibold">Closed</span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-gray-800/50 rounded-xl p-8 border border-gray-700/50 backdrop-blur-sm"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="p-4 bg-blue-900/30 rounded-full mr-4">
+                      <FaDumbbell className="text-blue-400 text-2xl" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Facilities</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li className="flex items-center text-gray-300">
+                      <svg className="h-5 w-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      State-of-the-art equipment
+                    </li>
+                    <li className="flex items-center text-gray-300">
+                      <svg className="h-5 w-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Clean and spacious workout areas
+                    </li>
+                    <li className="flex items-center text-gray-300">
+                      <svg className="h-5 w-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Professional trainers available
+                    </li>
+                  </ul>
+                </motion.div>
+              </div>
             </div>
           </div>
 
@@ -1085,7 +1161,7 @@ const LandingPage = () => {
                   </a>
                   <a href="#" className="text-gray-400 hover:text-red-500 transition-colors duration-300">
                     <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                     </svg>
                     <span className="sr-only">Health and Safety</span>
                   </a>

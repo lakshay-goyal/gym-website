@@ -17,7 +17,10 @@ import {
   FaTrophy,
   FaHeartbeat,
   FaMedal,
-  FaArrowLeft
+  FaArrowLeft,
+  FaInfoCircle,
+  FaShower,
+  FaParking
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
@@ -256,6 +259,91 @@ const ClientDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Gym Timings Section */}
+      <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Main Timings Card */}
+            <div className="md:col-span-2 bg-gray-800/50 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm">
+              <div className="flex items-center mb-6">
+                <div className="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full mr-4 shadow-lg">
+                  <FaClock className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-1">Gym Timings</h3>
+                  <p className="text-gray-400">Plan your workout schedule</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-gray-300 font-medium">Weekdays</span>
+                    <span className="px-3 py-1 bg-green-900/30 text-green-400 text-sm rounded-full">Open</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Monday - Saturday</span>
+                      <span className="text-white font-semibold">6:00 AM - 10:00 PM</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Sunday</span>
+                      <span className="text-red-400 font-semibold">Closed</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-gray-300 font-medium">Current Status</span>
+                    <span className="px-3 py-1 bg-green-900/30 text-green-400 text-sm rounded-full">Open Now</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Today's Hours</span>
+                      <span className="text-white font-semibold">6:00 AM - 10:00 PM</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Next Holiday</span>
+                      <span className="text-white font-semibold">Sunday</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Info Card */}
+            <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm">
+              <div className="flex items-center mb-6">
+                <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mr-4 shadow-lg">
+                  <FaInfoCircle className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-1">Quick Info</h3>
+                  <p className="text-gray-400">Important details</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center text-gray-300">
+                  <FaDumbbell className="text-blue-400 mr-3" />
+                  <span>State-of-the-art equipment</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <FaUser className="text-blue-400 mr-3" />
+                  <span>Professional trainers available</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <FaShower className="text-blue-400 mr-3" />
+                  <span>Clean shower facilities</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <FaParking className="text-blue-400 mr-3" />
+                  <span>Free parking available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Progress Metrics */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
