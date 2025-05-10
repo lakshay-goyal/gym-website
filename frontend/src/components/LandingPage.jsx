@@ -182,13 +182,13 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
       {showScanner ? (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <QRScanner />
         </div>
       ) : showSubscription ? (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <motion.div initial="hidden" animate="visible" variants={fadeIn}>
             <div className="text-center mb-12">
               <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
@@ -292,13 +292,13 @@ const LandingPage = () => {
           </motion.div>
         </div>
       ) : (
-        <>
+        <div className="w-full overflow-x-hidden">
           {showContactForm && (
             <ContactForm onClose={() => setShowContactForm(false)} />
           )}
           
           {/* Hero Section with Background Image */}
-          <div className="relative bg-black overflow-hidden h-screen">
+          <div className="relative bg-black overflow-hidden h-screen w-full">
             <div className="absolute inset-0 z-0 opacity-70 transition-opacity duration-1000 ease-in-out">
               <img
                 src={gymImages[currentImageIndex]}
@@ -495,8 +495,8 @@ const LandingPage = () => {
           </div>
 
           {/* Membership Plans Preview */}
-          <div className="py-20 bg-gradient-to-b from-gray-50 to-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-20 bg-gradient-to-b from-gray-50 to-white w-full overflow-x-hidden">
+            <div className="w-full max-w-[95%] mx-auto px-2 sm:px-4 lg:px-6">
               <motion.div
                 initial="hidden"
                 whileInView="visible"
@@ -504,13 +504,13 @@ const LandingPage = () => {
                 variants={fadeIn}
                 className="text-center mb-16"
               >
-                <h2 className="text-4xl font-bold text-gray-900 mb-4">MEMBERSHIP PLANS</h2>
-                <p className="text-xl text-gray-600">Choose the perfect plan for your fitness journey</p>
+                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">MEMBERSHIP PLANS</h2>
+                <p className="text-lg sm:text-xl text-gray-600">Choose the perfect plan for your fitness journey</p>
               </motion.div>
 
               <div className="space-y-12">
                 {/* First Row - 3 Plans */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {membershipPlans.slice(0, 3).map((plan, index) => (
                     <motion.div
                       key={index}
@@ -521,15 +521,15 @@ const LandingPage = () => {
                       className="relative bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300 border border-gray-100"
                     >
                       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-red-600 to-red-500"></div>
-                      <div className="p-8">
-                        <div className="text-center mb-8">
-                          <h3 className="text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
+                      <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="text-center mb-6 sm:mb-8">
+                          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
                           <div className="flex items-center justify-center">
-                            <span className="text-5xl font-extrabold text-gray-900 tracking-tight">{plan.price}</span>
+                            <span className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">{plan.price}</span>
                           </div>
                           <p className="mt-2 text-sm text-gray-500">per month</p>
                         </div>
-                        <div className="space-y-4 mb-8">
+                        <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                           {plan.features.map((feature, i) => (
                             <div key={i} className="flex items-start text-gray-600">
                               <svg className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -541,7 +541,7 @@ const LandingPage = () => {
                         </div>
                         <button
                           onClick={() => setShowSubscription(true)}
-                          className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-1 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                          className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-1 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
                           Get Started
                         </button>
@@ -551,7 +551,7 @@ const LandingPage = () => {
                 </div>
 
                 {/* Second Row - 2 Centered Plans */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 max-w-4xl mx-auto">
                   {membershipPlans.slice(3, 5).map((plan, index) => (
                     <motion.div
                       key={index + 3}
@@ -562,11 +562,11 @@ const LandingPage = () => {
                       className="relative bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300 border border-gray-100"
                     >
                       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-red-600 to-red-500"></div>
-                      <div className="p-8">
-                        <div className="text-center mb-8">
-                          <h3 className="text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
+                      <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="text-center mb-6 sm:mb-8">
+                          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
                           <div className="flex items-center justify-center">
-                            <span className="text-5xl font-extrabold text-gray-900 tracking-tight">{plan.price}</span>
+                            <span className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">{plan.price}</span>
                           </div>
                           <p className="mt-2 text-sm text-gray-500">per month</p>
                         </div>
@@ -1185,7 +1185,7 @@ const LandingPage = () => {
               </div>
             </div>
           </footer>
-        </>
+        </div>
       )}
     </div>
   );
