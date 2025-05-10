@@ -125,43 +125,57 @@ const LandingPage = () => {
   // Membership plans data
   const membershipPlans = [
     {
-      name: "Basic",
-      monthlyPrice: "$29",
-      quarterlyPrice: "$75",
-      annualPrice: "$290",
+      name: "1 Month",
+      price: "₹2,500",
       features: [
-        "Access to gym equipment",
-        "Standard operating hours",
-        "Locker access",
-        "Free Wi-Fi"
+        "Access to all gym equipment",
+        "Standard gym hours",
+        "Locker facility",
+        "Basic amenities"
       ],
       popular: false
     },
     {
-      name: "Premium",
-      monthlyPrice: "$49",
-      quarterlyPrice: "$130",
-      annualPrice: "$490",
+      name: "3 Months",
+      price: "₹6,000",
       features: [
-        "All Basic features",
-        "24/7 gym access",
-        "Group fitness classes",
-        "Free towel service",
-        "Sauna access"
+        "Access to all gym equipment",
+        "Standard gym hours",
+        "Locker facility",
+        "Basic amenities"
       ],
       popular: true
     },
     {
-      name: "Elite",
-      monthlyPrice: "$79",
-      quarterlyPrice: "$210",
-      annualPrice: "$790",
+      name: "5 Months",
+      price: "₹8,000",
       features: [
-        "All Premium features",
-        "Personal training sessions (2/mo)",
-        "Nutrition consultation",
-        "Spa access",
-        "Complimentary shakes"
+        "Access to all gym equipment",
+        "Standard gym hours",
+        "Locker facility",
+        "Basic amenities"
+      ],
+      popular: false
+    },
+    {
+      name: "6 Months",
+      price: "₹10,000",
+      features: [
+        "Access to all gym equipment",
+        "Standard gym hours",
+        "Locker facility",
+        "Basic amenities"
+      ],
+      popular: false
+    },
+    {
+      name: "1 Year",
+      price: "₹14,000",
+      features: [
+        "Access to all gym equipment",
+        "Standard gym hours",
+        "Locker facility",
+        "Basic amenities"
       ],
       popular: false
     }
@@ -240,14 +254,7 @@ const LandingPage = () => {
                     <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
                     <div className="mt-4 flex justify-center">
                       <span className="text-5xl font-extrabold text-gray-900">
-                        {selectedPlan === 'monthly' && plan.monthlyPrice}
-                        {selectedPlan === 'quarterly' && plan.quarterlyPrice}
-                        {selectedPlan === 'annual' && plan.annualPrice}
-                      </span>
-                      <span className="ml-1 text-xl font-medium text-gray-500 self-end">
-                        {selectedPlan === 'monthly' && '/mo'}
-                        {selectedPlan === 'quarterly' && '/qtr'}
-                        {selectedPlan === 'annual' && '/yr'}
+                        {plan.price}
                       </span>
                     </div>
                   </div>
@@ -272,9 +279,7 @@ const LandingPage = () => {
                         className={`block w-full text-center rounded-md px-4 py-3 font-medium hover:bg-red-700 transition-colors duration-300 ${
                           plan.popular 
                             ? 'bg-red-600 text-white' 
-                            : plan.name === 'Elite' 
-                              ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                              : 'bg-gray-800 text-white hover:bg-gray-700'
+                            : 'bg-gray-800 text-white hover:bg-gray-700'
                         }`}
                       >
                         Select Plan
@@ -490,97 +495,101 @@ const LandingPage = () => {
           </div>
 
           {/* Membership Plans Preview */}
-          <div className="py-16 bg-gray-100">
+          <div className="py-20 bg-gradient-to-b from-gray-50 to-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeIn}
-                className="text-center mb-12"
+                className="text-center mb-16"
               >
-                <h2 className="text-3xl font-extrabold text-gray-900">MEMBERSHIP PLANS</h2>
-                <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-                  Choose the plan that fits your fitness journey
-                </p>
+                <h2 className="text-4xl font-bold text-gray-900 mb-4">MEMBERSHIP PLANS</h2>
+                <p className="text-xl text-gray-600">Choose the perfect plan for your fitness journey</p>
               </motion.div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {membershipPlans.map((plan, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className={`bg-white rounded-lg shadow-lg overflow-hidden border-2 ${
-                      plan.popular ? 'border-red-500 transform -translate-y-2' : 'border-gray-200'
-                    } relative transition-all duration-300`}
-                  >
-                    {plan.popular && (
-                      <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 transform rotate-45 translate-x-8 -translate-y-1">
-                        POPULAR
-                      </div>
-                    )}
-                    <div className={`px-6 py-8 text-center ${
-                      plan.popular ? 'bg-red-50' : 'bg-gray-50'
-                    }`}>
-                      <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
-                      <div className="mt-4 flex justify-center">
-                        <span className="text-5xl font-extrabold text-gray-900">
-                          {plan.monthlyPrice}
-                        </span>
-                        <span className="ml-1 text-xl font-medium text-gray-500 self-end">
-                          /mo
-                        </span>
-                      </div>
-                    </div>
-                    <div className="px-6 py-8">
-                      <ul className="space-y-4">
-                        {plan.features.slice(0, 3).map((feature, i) => (
-                          <li key={i} className="flex items-start">
-                            <svg 
-                              className="h-5 w-5 text-green-500 flex-shrink-0 mt-1" 
-                              fill="currentColor" 
-                              viewBox="0 0 20 20"
-                            >
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                            <span className="ml-3 text-gray-700">{feature}</span>
-                          </li>
-                        ))}
-                        <li className="text-gray-500 text-sm">
-                          + {plan.features.length - 3} more benefits
-                        </li>
-                      </ul>
-                      <div className="mt-8">
+              <div className="space-y-12">
+                {/* First Row - 3 Plans */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {membershipPlans.slice(0, 3).map((plan, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="relative bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300 border border-gray-100"
+                    >
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-red-600 to-red-500"></div>
+                      <div className="p-8">
+                        <div className="text-center mb-8">
+                          <h3 className="text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
+                          <div className="flex items-center justify-center">
+                            <span className="text-5xl font-extrabold text-gray-900 tracking-tight">{plan.price}</span>
+                          </div>
+                          <p className="mt-2 text-sm text-gray-500">per month</p>
+                        </div>
+                        <div className="space-y-4 mb-8">
+                          {plan.features.map((feature, i) => (
+                            <div key={i} className="flex items-start text-gray-600">
+                              <svg className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <span className="text-sm leading-relaxed">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
                         <button
                           onClick={() => setShowSubscription(true)}
-                          className={`w-full text-center rounded-md px-4 py-3 font-medium hover:bg-red-700 transition-colors duration-300 ${
-                            plan.popular 
-                              ? 'bg-red-600 text-white' 
-                              : plan.name === 'Elite' 
-                                ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                                : 'bg-gray-800 text-white hover:bg-gray-700'
-                          }`}
+                          className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-1 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         >
-                          View Details
+                          Get Started
                         </button>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-              
-              <div className="mt-12 text-center">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowSubscription(true)}
-                  className="px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-black hover:bg-gray-800 transition-colors duration-300"
-                >
-                  Compare All Membership Plans
-                </motion.button>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Second Row - 2 Centered Plans */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                  {membershipPlans.slice(3, 5).map((plan, index) => (
+                    <motion.div
+                      key={index + 3}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: (index + 3) * 0.1 }}
+                      viewport={{ once: true }}
+                      className="relative bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300 border border-gray-100"
+                    >
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-red-600 to-red-500"></div>
+                      <div className="p-8">
+                        <div className="text-center mb-8">
+                          <h3 className="text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
+                          <div className="flex items-center justify-center">
+                            <span className="text-5xl font-extrabold text-gray-900 tracking-tight">{plan.price}</span>
+                          </div>
+                          <p className="mt-2 text-sm text-gray-500">per month</p>
+                        </div>
+                        <div className="space-y-4 mb-8">
+                          {plan.features.map((feature, i) => (
+                            <div key={i} className="flex items-start text-gray-600">
+                              <svg className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <span className="text-sm leading-relaxed">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => setShowSubscription(true)}
+                          className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-1 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        >
+                          Get Started
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
