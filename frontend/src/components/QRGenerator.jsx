@@ -190,7 +190,7 @@ const QRGenerator = () => {
               </button>
             </div>
             <div className="text-center">
-              <img src={selectedQR.qrData} alt="QR Code" className="mx-auto mb-4" />
+              <img src={selectedQR.qrData} alt="QR Code" className="mx-auto mb-4 w-80" />
               <p className="text-sm text-gray-600 mb-4">Code: {selectedQR.code}</p>
             <button
                 onClick={() => downloadPDF(selectedQR)}

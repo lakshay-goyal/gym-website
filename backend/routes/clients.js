@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Client = require('../models/Client');
 const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
 
 // Middleware to verify admin role
 const verifyAdmin = async (req, res, next) => {
@@ -65,9 +67,10 @@ router.post('/add', verifyAdmin, async (req, res) => {
     const endDate = calculateEndDate(startDate, membershipType);
 
     // Create user account with password same as username
+    const hashedPassword = await bcrypt.hash(username, 10);
     const user = new User({
       username,
-      password: username, // Set password same as username
+      password: hashedPassword,
       role: 'client'
     });
 
@@ -82,7 +85,7 @@ router.post('/add', verifyAdmin, async (req, res) => {
       startDate,
       endDate,
       user: user._id,
-      trainer: trainer || null // Add trainer assignment
+      trainer: trainer || null
     });
 
     await client.save();
@@ -112,16 +115,12 @@ router.get('/me', async (req, res) => {
       return res.status(404).json({ message: 'Client not found' });
     }
 
-    // Use the actual stored dates from the database
     const startDate = new Date(client.startDate);
     const endDate = new Date(client.endDate);
-    
-    // Calculate days remaining
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to start of day
-    endDate.setHours(0, 0, 0, 0); // Reset time to start of day
+    today.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
 
-    // If start date is in the future, return total days of membership
     if (startDate > today) {
       const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
       return res.json({
@@ -130,7 +129,6 @@ router.get('/me', async (req, res) => {
       });
     }
 
-    // If membership has started, calculate remaining days
     const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
     res.json({
@@ -155,139 +153,169 @@ router.get('/', verifyAdmin, async (req, res) => {
   }
 });
 
-// Generate client invoice
+// Helper function to generate professional invoice
+const generateInvoice = async (client, res) => {
+  try {
+    // Calculate amount based on membership type
+    const membershipRates = {
+      '1month': 1500,
+      '3month': 4000,
+      '6month': 7500
+    };
+    
+    const amount = membershipRates[client.membershipType] || 1500;
+    const taxRate = 0.18; // 18% GST
+    const taxAmount = amount * taxRate;
+    const totalAmount = amount + taxAmount;
+
+    // Format dates
+    const formatDate = (date) => {
+      return new Date(date).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    };
+
+    // Create PDF document
+    const doc = new PDFDocument({
+      size: 'A4',
+      margin: 50,
+      bufferPages: true
+    });
+    
+    // Set response headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Invoice_${client.username}.pdf`);
+    
+    // Pipe PDF to response
+    doc.pipe(res);
+
+    // Add header with company info
+    doc.fillColor('#444444')
+       .fontSize(20)
+       .text('MYO-PLUS FITNESS', 50, 50)
+       .fontSize(10)
+       .text('123 Fitness Street, City', 200, 50, { align: 'right' })
+       .text('Bangalore, Karnataka 560001', 200, 65, { align: 'right' })
+       .text('GSTIN: 29ABCDE1234F1Z5', 200, 80, { align: 'right' })
+       .moveDown();
+
+    // Draw horizontal line
+    doc.strokeColor('#aaaaaa')
+       .lineWidth(1)
+       .moveTo(50, 120)
+       .lineTo(550, 120)
+       .stroke();
+
+    // Add invoice title and details
+    doc.fontSize(20)
+       .text('INVOICE', 50, 140)
+       .fontSize(10)
+       .text(`Invoice #: INV-${client._id.toString().slice(-6).toUpperCase()}`, 50, 170)
+       .text(`Invoice Date: ${new Date().toLocaleDateString('en-IN')}`, 50, 185)
+       .text(`Due Date: ${formatDate(client.startDate)}`, 50, 200)
+       .text(`Membership Period: ${formatDate(client.startDate)} - ${formatDate(client.endDate)}`, 50, 215)
+       .moveDown();
+
+    // Add client details
+    doc.fontSize(12)
+       .font('Helvetica-Bold')
+       .text('Bill To:', 50, 250)
+       .font('Helvetica')
+       .text(client.username, 50, 265)
+       .text(client.email, 50, 280)
+       .text(client.phone, 50, 295)
+       .moveDown();
+
+    // Create table for invoice items
+    const tableTop = 350;
+    const itemCodeX = 50;
+    const descriptionX = 100;
+    const periodX = 300;
+    const amountX = 400;
+    const taxX = 475;
+    const lineY = tableTop + 20;
+
+    // Table header
+    doc.font('Helvetica-Bold')
+       .fontSize(10)
+       .text('Code', itemCodeX, tableTop)
+       .text('Description', descriptionX, tableTop)
+       .text('Period', periodX, tableTop)
+       .text('Amount', amountX, tableTop)
+       .text('Tax (18%)', taxX, tableTop)
+       .moveTo(50, tableTop + 15)
+       .lineTo(550, tableTop + 15)
+       .stroke();
+
+    // Table row
+    doc.font('Helvetica')
+       .text('GYM001', itemCodeX, lineY)
+       .text(`Gym Membership (${client.membershipType})`, descriptionX, lineY)
+       .text(`${client.membershipType.replace('month', ' month')}`, periodX, lineY)
+       .text(`₹${amount.toLocaleString('en-IN')}`, amountX, lineY)
+       .text(`₹${taxAmount.toLocaleString('en-IN')}`, taxX, lineY)
+       .moveTo(50, lineY + 20)
+       .lineTo(550, lineY + 20)
+       .stroke();
+
+    // Summary section
+    const summaryY = lineY + 40;
+    doc.font('Helvetica-Bold')
+       .text('Subtotal:', amountX, summaryY)
+       .text(`₹${amount.toLocaleString('en-IN')}`, taxX, summaryY)
+       .text('Tax (18%):', amountX, summaryY + 20)
+       .text(`₹${taxAmount.toLocaleString('en-IN')}`, taxX, summaryY + 20)
+       .moveTo(400, summaryY + 35)
+       .lineTo(550, summaryY + 35)
+       .stroke()
+       .fontSize(12)
+       .text('Total Amount:', amountX, summaryY + 40)
+       .text(`₹${totalAmount.toLocaleString('en-IN')}`, taxX, summaryY + 40)
+       .moveTo(400, summaryY + 55)
+       .lineTo(550, summaryY + 55)
+       .stroke();
+
+    // Payment information
+    doc.fontSize(10)
+       .text('Payment Method: Bank Transfer', 50, summaryY + 80)
+       .text('Bank Name: State Bank of India', 50, summaryY + 95)
+       .text('Account Name: Myo-Plus Fitness', 50, summaryY + 110)
+       .text('Account Number: 123456789012', 50, summaryY + 125)
+       .text('IFSC Code: SBIN0001234', 50, summaryY + 140)
+       .text(`Payment Status: ${client.paymentStatus || 'Pending'}`, 50, summaryY + 155);
+
+    // Terms and conditions
+    doc.fontSize(8)
+       .text('Terms & Conditions:', 50, 650)
+       .text('1. Membership is non-transferable and non-refundable.', 50, 665)
+       .text('2. Payment must be made in full before the start date.', 50, 680)
+       .text('3. Late payments may result in membership suspension.', 50, 695)
+       .text('4. Please bring this invoice for any queries.', 50, 710);
+
+    // Footer
+    doc.fontSize(8)
+       .text('Thank you for choosing Myo-Plus Fitness!', 50, 730, { align: 'center' })
+       .text('For any queries, contact: support@myoplus.com | Phone: +91 9876543210', 50, 745, { align: 'center' })
+       .text('This is a computer generated invoice and does not require a signature.', 50, 760, { align: 'center' });
+
+    // Finalize PDF
+    doc.end();
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    throw error;
+  }
+};
+
+// Generate client invoice (admin)
 router.get('/invoice/:clientId', verifyAdmin, async (req, res) => {
   try {
     const client = await Client.findById(req.params.clientId);
     if (!client) {
       return res.status(404).json({ message: 'Client not found' });
     }
-
-    // Calculate amount based on membership type
-    const monthlyRate = 500; // 500 rupees per month
-    let months = 0;
-    switch (client.membershipType) {
-      case '1month':
-        months = 1;
-        break;
-      case '3month':
-        months = 3;
-        break;
-      case '6month':
-        months = 6;
-        break;
-      default:
-        months = 1;
-    }
-    const totalAmount = months * monthlyRate;
-
-    // Create PDF document
-    const doc = new PDFDocument({
-      size: 'A4',
-      margin: 50
-    });
-    
-    // Set response headers
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=invoice-${client.username}.pdf`);
-    
-    // Pipe PDF to response
-    doc.pipe(res);
-    
-    // Add header with logo and company info
-    doc.fontSize(20).text('Gym Membership Invoice', { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(12).text('Gym Name: Fitness Pro', { align: 'center' });
-    doc.text('Address: 123 Fitness Street, City', { align: 'center' });
-    doc.text('Phone: +91 1234567890', { align: 'center' });
-    doc.text('Email: info@fitnesspro.com', { align: 'center' });
-    doc.moveDown();
-    
-    // Add invoice details
-    doc.fontSize(12);
-    doc.text(`Invoice Number: INV-${client._id.toString().slice(-6)}`, { align: 'right' });
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, { align: 'right' });
-    doc.moveDown();
-    
-    // Add client details
-    doc.fontSize(14).text('Bill To:', { underline: true });
-    doc.fontSize(12);
-    doc.text(`Username: ${client.username}`);
-    doc.text(`Email: ${client.email}`);
-    doc.text(`Phone: ${client.phone}`);
-    doc.moveDown();
-
-    // Create table for membership details
-    const tableTop = doc.y;
-    const tableLeft = 50;
-    const col1 = 50;  // Description
-    const col2 = 200; // Duration
-    const col3 = 300; // Rate
-    const col4 = 400; // Amount
-    const rowHeight = 30;
-    
-    // Draw table header
-    doc.fontSize(12).font('Helvetica-Bold');
-    doc.rect(tableLeft, tableTop, 500, rowHeight).stroke();
-    
-    // Draw vertical lines
-    doc.moveTo(col2, tableTop).lineTo(col2, tableTop + rowHeight).stroke();
-    doc.moveTo(col3, tableTop).lineTo(col3, tableTop + rowHeight).stroke();
-    doc.moveTo(col4, tableTop).lineTo(col4, tableTop + rowHeight).stroke();
-    
-    // Add header text
-    doc.text('Description', col1 + 10, tableTop + 10);
-    doc.text('Duration', col2 + 10, tableTop + 10);
-    doc.text('Rate', col3 + 10, tableTop + 10);
-    doc.text('Amount', col4 + 10, tableTop + 10);
-    
-    // Draw table row
-    const rowY = tableTop + rowHeight;
-    doc.fontSize(12).font('Helvetica');
-    doc.rect(tableLeft, rowY, 500, rowHeight).stroke();
-    
-    // Draw vertical lines for row
-    doc.moveTo(col2, rowY).lineTo(col2, rowY + rowHeight).stroke();
-    doc.moveTo(col3, rowY).lineTo(col3, rowY + rowHeight).stroke();
-    doc.moveTo(col4, rowY).lineTo(col4, rowY + rowHeight).stroke();
-    
-    // Add row content
-    doc.text('Gym Membership', col1 + 10, rowY + 10);
-    doc.text(`${months} Month${months > 1 ? 's' : ''}`, col2 + 10, rowY + 10);
-    doc.text(`₹${monthlyRate}/month`, col3 + 10, rowY + 10);
-    doc.text(`₹${totalAmount}`, col4 + 10, rowY + 10);
-    
-    // Add total section
-    const totalY = rowY + rowHeight;
-    doc.rect(tableLeft, totalY, 500, rowHeight).stroke();
-    doc.moveTo(col3, totalY).lineTo(col3, totalY + rowHeight).stroke();
-    doc.moveTo(col4, totalY).lineTo(col4, totalY + rowHeight).stroke();
-    
-    doc.fontSize(14).font('Helvetica-Bold');
-    doc.text('Total Amount:', col3 + 10, totalY + 10);
-    doc.text(`₹${totalAmount}`, col4 + 10, totalY + 10);
-    
-    // Add payment status section
-    doc.moveDown(2);
-    doc.fontSize(12).font('Helvetica');
-    doc.text(`Payment Status: ${client.paymentStatus || 'Pending'}`);
-    doc.text(`Payment Date: ${new Date(client.paymentDate || new Date()).toLocaleDateString()}`);
-    
-    // Add terms and conditions
-    doc.moveDown(3);
-    doc.fontSize(10).text('Terms and Conditions:', { underline: true });
-    doc.fontSize(8);
-    doc.text('1. Membership is non-transferable and non-refundable.');
-    doc.text('2. Payment must be made in full before the start date.');
-    doc.text('3. Membership can be renewed before the expiry date.');
-    
-    // Add footer
-    doc.moveDown(2);
-    doc.fontSize(10).text('Thank you for your business!', { align: 'center' });
-    doc.text('This is a computer-generated invoice and does not require a signature.', { align: 'center' });
-    
-    // Finalize PDF
-    doc.end();
+    await generateInvoice(client, res);
   } catch (error) {
     console.error('Error generating invoice:', error);
     res.status(500).json({ message: 'Error generating invoice' });
@@ -309,131 +337,7 @@ router.get('/my-invoice', async (req, res) => {
       return res.status(404).json({ message: 'Client not found' });
     }
 
-    // Calculate amount based on membership type
-    const monthlyRate = 500; // 500 rupees per month
-    let months = 0;
-    switch (client.membershipType) {
-      case '1month':
-        months = 1;
-        break;
-      case '3month':
-        months = 3;
-        break;
-      case '6month':
-        months = 6;
-        break;
-      default:
-        months = 1;
-    }
-    const totalAmount = months * monthlyRate;
-
-    // Create PDF document
-    const doc = new PDFDocument({
-      size: 'A4',
-      margin: 50
-    });
-    
-    // Set response headers
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=invoice-${client.username}.pdf`);
-    
-    // Pipe PDF to response
-    doc.pipe(res);
-    
-    // Add header with logo and company info
-    doc.fontSize(20).text('Gym Membership Invoice', { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(12).text('Gym Name: Fitness Pro', { align: 'center' });
-    doc.text('Address: 123 Fitness Street, City', { align: 'center' });
-    doc.text('Phone: +91 1234567890', { align: 'center' });
-    doc.text('Email: info@fitnesspro.com', { align: 'center' });
-    doc.moveDown();
-    
-    // Add invoice details
-    doc.fontSize(12);
-    doc.text(`Invoice Number: INV-${client._id.toString().slice(-6)}`, { align: 'right' });
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, { align: 'right' });
-    doc.moveDown();
-    
-    // Add client details
-    doc.fontSize(14).text('Bill To:', { underline: true });
-    doc.fontSize(12);
-    doc.text(`Username: ${client.username}`);
-    doc.text(`Email: ${client.email}`);
-    doc.text(`Phone: ${client.phone}`);
-    doc.moveDown();
-
-    // Create table for membership details
-    const tableTop = doc.y;
-    const tableLeft = 50;
-    const col1 = 50;  // Description
-    const col2 = 200; // Duration
-    const col3 = 300; // Rate
-    const col4 = 400; // Amount
-    const rowHeight = 30;
-    
-    // Draw table header
-    doc.fontSize(12).font('Helvetica-Bold');
-    doc.rect(tableLeft, tableTop, 500, rowHeight).stroke();
-    
-    // Draw vertical lines
-    doc.moveTo(col2, tableTop).lineTo(col2, tableTop + rowHeight).stroke();
-    doc.moveTo(col3, tableTop).lineTo(col3, tableTop + rowHeight).stroke();
-    doc.moveTo(col4, tableTop).lineTo(col4, tableTop + rowHeight).stroke();
-    
-    // Add header text
-    doc.text('Description', col1 + 10, tableTop + 10);
-    doc.text('Duration', col2 + 10, tableTop + 10);
-    doc.text('Rate', col3 + 10, tableTop + 10);
-    doc.text('Amount', col4 + 10, tableTop + 10);
-    
-    // Draw table row
-    const rowY = tableTop + rowHeight;
-    doc.fontSize(12).font('Helvetica');
-    doc.rect(tableLeft, rowY, 500, rowHeight).stroke();
-    
-    // Draw vertical lines for row
-    doc.moveTo(col2, rowY).lineTo(col2, rowY + rowHeight).stroke();
-    doc.moveTo(col3, rowY).lineTo(col3, rowY + rowHeight).stroke();
-    doc.moveTo(col4, rowY).lineTo(col4, rowY + rowHeight).stroke();
-    
-    // Add row content
-    doc.text('Gym Membership', col1 + 10, rowY + 10);
-    doc.text(`${months} Month${months > 1 ? 's' : ''}`, col2 + 10, rowY + 10);
-    doc.text(`₹${monthlyRate}/month`, col3 + 10, rowY + 10);
-    doc.text(`₹${totalAmount}`, col4 + 10, rowY + 10);
-    
-    // Add total section
-    const totalY = rowY + rowHeight;
-    doc.rect(tableLeft, totalY, 500, rowHeight).stroke();
-    doc.moveTo(col3, totalY).lineTo(col3, totalY + rowHeight).stroke();
-    doc.moveTo(col4, totalY).lineTo(col4, totalY + rowHeight).stroke();
-    
-    doc.fontSize(14).font('Helvetica-Bold');
-    doc.text('Total Amount:', col3 + 10, totalY + 10);
-    doc.text(`₹${totalAmount}`, col4 + 10, totalY + 10);
-    
-    // Add payment status section
-    doc.moveDown(2);
-    doc.fontSize(12).font('Helvetica');
-    doc.text(`Payment Status: ${client.paymentStatus || 'Pending'}`);
-    doc.text(`Payment Date: ${new Date(client.paymentDate || new Date()).toLocaleDateString()}`);
-    
-    // Add terms and conditions
-    doc.moveDown(3);
-    doc.fontSize(10).text('Terms and Conditions:', { underline: true });
-    doc.fontSize(8);
-    doc.text('1. Membership is non-transferable and non-refundable.');
-    doc.text('2. Payment must be made in full before the start date.');
-    doc.text('3. Membership can be renewed before the expiry date.');
-    
-    // Add footer
-    doc.moveDown(2);
-    doc.fontSize(10).text('Thank you for your business!', { align: 'center' });
-    doc.text('This is a computer-generated invoice and does not require a signature.', { align: 'center' });
-    
-    // Finalize PDF
-    doc.end();
+    await generateInvoice(client, res);
   } catch (error) {
     console.error('Error generating invoice:', error);
     res.status(500).json({ message: 'Error generating invoice' });
@@ -448,10 +352,7 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
       return res.status(404).json({ message: 'Client not found' });
     }
 
-    // Delete the associated user account
     await User.findByIdAndDelete(client.user);
-
-    // Delete the client
     await client.deleteOne();
 
     res.json({ message: 'Client deleted successfully' });
@@ -478,7 +379,6 @@ router.put('/profile', async (req, res) => {
 
     const { username, email, phone } = req.body;
 
-    // Check if username or email is being changed and if it's already in use
     if (username !== client.username || email !== client.email) {
       const existingClient = await Client.findOne({
         $or: [
@@ -497,7 +397,6 @@ router.put('/profile', async (req, res) => {
       }
     }
 
-    // Update client details
     client.username = username;
     client.email = email;
     client.phone = phone;
@@ -509,4 +408,4 @@ router.put('/profile', async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;
