@@ -23,6 +23,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import QRGenerator from './QRGenerator';
 import TrainerManagement from './TrainerManagement';
+import OTPVerification from './OTPVerification';
 
 // Animation variants
 const fadeIn = {
@@ -119,6 +120,8 @@ const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [trainers, setTrainers] = useState([]);
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const baseURL = import.meta.env.VITE_BACKEND_URL;
 
@@ -166,7 +169,7 @@ const AdminDashboard = () => {
   const fetchTrainers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${baseURL}/api/trainers`, {
+      const response = await axios.get(`${baseURL}/api/clients/trainers`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTrainers(response.data);
@@ -226,24 +229,36 @@ const AdminDashboard = () => {
 
   const handleAddClient = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${baseURL}/api/clients/add`, newClient, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchClients();
-      setActiveTab('clients');
-      setNewClient({
-        username: '',
-        email: '',
-        phone: '',
-        membershipType: '1month',
-        startDate: new Date().toISOString().split('T')[0]
-      });
+      await axios.post(
+        `${baseURL}/api/clients/send-otp`,
+        newClient,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      setShowOTPVerification(true);
     } catch (error) {
-      console.error('Error adding client:', error);
-      alert(error.response?.data?.message || 'Failed to add client');
+      console.error('Error sending OTP:', error);
+      alert(error.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleVerificationSuccess = (response) => {
+    fetchClients();
+    setActiveTab('clients');
+    setNewClient({
+      username: '',
+      email: '',
+      phone: '',
+      membershipType: '1month',
+      startDate: new Date().toISOString().split('T')[0]
+    });
+    alert('Client added successfully!');
   };
 
   const handleDownloadInvoice = async (clientId) => {
@@ -279,6 +294,23 @@ const AdminDashboard = () => {
         console.error('Error deleting client:', error);
         alert(error.response?.data?.message || 'Failed to delete client');
       }
+    }
+  };
+
+  const handleUpdateTrainer = async (clientId, trainerId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `${baseURL}/api/clients/${clientId}/trainer`,
+        { trainerId },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      fetchClients(); // Refresh the client list
+    } catch (error) {
+      console.error('Error updating trainer:', error);
+      alert(error.response?.data?.message || 'Failed to update trainer');
     }
   };
 
@@ -752,9 +784,18 @@ const AdminDashboard = () => {
                                 </div>
                               </td>
                               <td className="px-4 py-3 md:px-6 md:py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">
-                                  {client.trainer ? client.trainer.username : 'Not Assigned'}
-                                </div>
+                                <select
+                                  value={client.trainer?._id || ''}
+                                  onChange={(e) => handleUpdateTrainer(client._id, e.target.value)}
+                                  className="text-sm text-gray-900 border rounded px-2 py-1"
+                                >
+                                  <option value="">Not Assigned</option>
+                                  {trainers.map((trainer) => (
+                                    <option key={trainer._id} value={trainer._id}>
+                                      {trainer.username}
+                                    </option>
+                                  ))}
+                                </select>
                               </td>
                               <td className="px-4 py-3 md:px-6 md:py-4 whitespace-nowrap">
                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -887,15 +928,24 @@ const AdminDashboard = () => {
                     </button>
                     <button
                       type="submit"
-                      className="px-3 py-1 md:px-4 md:py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm md:text-base"
+                      disabled={isSubmitting}
+                      className="px-3 py-1 md:px-4 md:py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm md:text-base disabled:opacity-50"
                     >
-                      Add Client
+                      {isSubmitting ? 'Sending OTP...' : 'Add Client'}
                     </button>
                   </div>
                 </form>
               </div>
             </motion.div>
           )}
+
+          {/* Add OTP Verification Component */}
+          <OTPVerification
+            isOpen={showOTPVerification}
+            onClose={() => setShowOTPVerification(false)}
+            email={newClient.email}
+            onVerificationSuccess={handleVerificationSuccess}
+          />
 
           {/* Attendance Tab */}
           {activeTab === 'attendance' && (

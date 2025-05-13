@@ -7,6 +7,10 @@ const Client = require('../models/Client');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+const OTP = require('../models/OTP');
+const nodemailer = require('nodemailer');
+const Trainer = require('../models/Trainer');
+require('dotenv').config();
 
 // Middleware to verify admin role
 const verifyAdmin = async (req, res, next) => {
@@ -42,15 +46,169 @@ const calculateEndDate = (startDate, membershipType) => {
     case '3month':
       monthsToAdd = 3;
       break;
+    case '5month':
+      monthsToAdd = 5;
+      break;
     case '6month':
       monthsToAdd = 6;
+      break;
+    case '1year':
+      monthsToAdd = 12;
       break;
     default:
       monthsToAdd = 1;
   }
 
-  return new Date(start.setMonth(start.getMonth() + monthsToAdd));
+  const endDate = new Date(start);
+  endDate.setMonth(start.getMonth() + monthsToAdd);
+  return endDate;
 };
+
+// Create nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// Generate random 6-digit OTP
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Send OTP for new client
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { username, email, phone, membershipType, startDate, trainer } = req.body;
+
+    // Check if username already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    // Check if email already exists
+    const existingClient = await Client.findOne({ email });
+    if (existingClient) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+
+    // Store OTP and client data
+    await OTP.create({
+      email,
+      otp,
+      clientData: { username, email, phone, membershipType, startDate, trainer }
+    });
+
+    // Send OTP email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your OTP for Client Registration',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #333; text-align: center;">🔐 OTP Verification</h2>
+          <p style="font-size: 16px;">Your OTP for client registration is:</p>
+          <h1 style="text-align: center; font-size: 32px; color: #007bff; letter-spacing: 5px;">${otp}</h1>
+          <p style="font-size: 14px; color: #666;">This OTP will expire in 5 minutes.</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    res.status(500).json({ error: 'Failed to send OTP' });
+  }
+});
+
+// Verify OTP and create client
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Find OTP record
+    const otpRecord = await OTP.findOne({ email, otp });
+    if (!otpRecord) {
+      return res.status(400).json({ error: 'Invalid OTP' });
+    }
+
+    const { username, email: clientEmail, phone, membershipType, startDate, trainer } = otpRecord.clientData;
+
+    // Double check if username or email exists (in case of race conditions)
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    const existingClient = await Client.findOne({ email: clientEmail });
+    if (existingClient) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    // Verify trainer exists if assigned
+    let trainerId = null;
+    if (trainer) {
+      const trainerExists = await Trainer.findById(trainer);
+      if (!trainerExists) {
+        return res.status(400).json({ error: 'Selected trainer not found' });
+      }
+      trainerId = trainer;
+    }
+
+    // Create user account with password same as username
+    const user = new User({
+      username,
+      password: username, // Password will be hashed by the pre-save middleware
+      role: 'client'
+    });
+
+    await user.save();
+
+    // Calculate end date based on membership type
+    const endDate = calculateEndDate(startDate, membershipType);
+
+    // Create client profile
+    const client = new Client({
+      username,
+      email: clientEmail,
+      phone,
+      membershipType,
+      startDate: new Date(startDate),
+      endDate,
+      user: user._id,
+      trainer: trainerId
+    });
+
+    await client.save();
+
+    // Delete OTP record
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    // Populate trainer information before sending response
+    const populatedClient = await Client.findById(client._id).populate('trainer', 'username');
+
+    res.status(201).json({ 
+      message: 'Client created successfully', 
+      client: {
+        ...populatedClient.toObject(),
+        password: username // Return the password (same as username)
+      }
+    });
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+    res.status(500).json({ error: 'Failed to verify OTP' });
+  }
+});
 
 // Add new client
 router.post('/add', verifyAdmin, async (req, res) => {
@@ -63,14 +221,23 @@ router.post('/add', verifyAdmin, async (req, res) => {
       return res.status(400).json({ message: 'Username already exists' });
     }
 
+    // Verify trainer exists if assigned
+    let trainerId = null;
+    if (trainer) {
+      const trainerExists = await Trainer.findById(trainer);
+      if (!trainerExists) {
+        return res.status(400).json({ error: 'Selected trainer not found' });
+      }
+      trainerId = trainer;
+    }
+
     // Calculate end date based on membership type
     const endDate = calculateEndDate(startDate, membershipType);
 
     // Create user account with password same as username
-    const hashedPassword = await bcrypt.hash(username, 10);
     const user = new User({
       username,
-      password: hashedPassword,
+      password: username, // Password will be hashed by the pre-save middleware
       role: 'client'
     });
 
@@ -85,7 +252,7 @@ router.post('/add', verifyAdmin, async (req, res) => {
       startDate,
       endDate,
       user: user._id,
-      trainer: trainer || null
+      trainer: trainerId
     });
 
     await client.save();
@@ -145,7 +312,8 @@ router.get('/', verifyAdmin, async (req, res) => {
   try {
     const clients = await Client.find()
       .populate('trainer', 'username')
-      .select('-__v');
+      .select('-__v')
+      .sort({ createdAt: -1 }); // Sort by newest first
     res.json(clients);
   } catch (error) {
     console.error('Error fetching clients:', error);
@@ -405,6 +573,65 @@ router.put('/profile', async (req, res) => {
     res.json(client);
   } catch (error) {
     res.status(500).json({ message: 'Error updating profile', error: error.message });
+  }
+});
+
+// Get all trainers
+router.get('/trainers', verifyAdmin, async (req, res) => {
+  try {
+    const trainers = await Trainer.find()
+      .select('_id username email')
+      .sort({ username: 1 });
+    res.json(trainers);
+  } catch (error) {
+    console.error('Error fetching trainers:', error);
+    res.status(500).json({ error: 'Failed to fetch trainers' });
+  }
+});
+
+// Update client's trainer
+router.put('/:clientId/trainer', verifyAdmin, async (req, res) => {
+  try {
+    const { trainerId } = req.body;
+    const clientId = req.params.clientId;
+
+    // Verify client exists
+    const client = await Client.findById(clientId);
+    if (!client) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    // Verify trainer exists if trainerId is provided
+    if (trainerId) {
+      const trainerExists = await Trainer.findById(trainerId);
+      if (!trainerExists) {
+        return res.status(400).json({ 
+          error: 'Selected trainer not found',
+          message: 'Please make sure you are using a valid trainer ID. You can get the list of trainers from /api/clients/trainers'
+        });
+      }
+    }
+
+    // Update client
+    const updatedClient = await Client.findByIdAndUpdate(
+      clientId,
+      { trainer: trainerId || null },
+      { new: true }
+    ).populate('trainer', 'username');
+
+    res.json({
+      message: 'Trainer updated successfully',
+      client: updatedClient
+    });
+  } catch (error) {
+    console.error('Error updating client trainer:', error);
+    if (error.name === 'CastError') {
+      return res.status(400).json({ 
+        error: 'Invalid trainer ID format',
+        message: 'Please provide a valid MongoDB ObjectId for the trainer'
+      });
+    }
+    res.status(500).json({ error: 'Failed to update client trainer' });
   }
 });
 

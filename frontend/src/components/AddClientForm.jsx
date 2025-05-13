@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import OTPVerification from './OTPVerification';
 
 const AddClientForm = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,8 @@ const AddClientForm = () => {
 
   const [generatedCredentials, setGeneratedCredentials] = useState(null);
   const [error, setError] = useState('');
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -24,10 +27,13 @@ const AddClientForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `${baseURL}/api/clients/add`,
+      await axios.post(
+        `${baseURL}/api/clients/send-otp`,
         formData,
         {
           headers: {
@@ -36,21 +42,27 @@ const AddClientForm = () => {
         }
       );
 
-      setGeneratedCredentials({
-        username: response.data.username,
-        password: response.data.password
-      });
-      setFormData({
-        username: '',
-        email: '',
-        phone: '',
-        membershipType: '1month',
-        startDate: ''
-      });
-      setError('');
+      setShowOTPVerification(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred while adding client');
+      setError(err.response?.data?.message || 'An error occurred while sending OTP');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleVerificationSuccess = (response) => {
+    setGeneratedCredentials({
+      username: response.client.username,
+      password: response.client.password
+    });
+    setFormData({
+      username: '',
+      email: '',
+      phone: '',
+      membershipType: '1month',
+      startDate: ''
+    });
+    setError('');
   };
 
   return (
@@ -142,12 +154,20 @@ const AddClientForm = () => {
         <div className="pt-4">
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isSubmitting}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            Add Client
+            {isSubmitting ? 'Sending OTP...' : 'Add Client'}
           </button>
         </div>
       </form>
+
+      <OTPVerification
+        isOpen={showOTPVerification}
+        onClose={() => setShowOTPVerification(false)}
+        email={formData.email}
+        onVerificationSuccess={handleVerificationSuccess}
+      />
     </div>
   );
 };
