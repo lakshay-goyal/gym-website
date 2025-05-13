@@ -13,23 +13,33 @@ import {
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 const QRScanner = () => {
   const navigate = useNavigate();
-  const [scannedCode, setScannedCode] = useState('');
-  const [showForm, setShowForm] = useState(false);
+  const { code: urlCode } = useParams();
+  const [searchParams] = useSearchParams();
+  const queryCode = searchParams.get('code');
+  const [scannedCode, setScannedCode] = useState(queryCode || urlCode || '');
+  const [showForm, setShowForm] = useState(!!(queryCode || urlCode));
   const [scanner, setScanner] = useState(null);
   const [message, setMessage] = useState('');
-  const [scanStatus, setScanStatus] = useState('ready');
-  const [manualInput, setManualInput] = useState('');
+  const [scanStatus, setScanStatus] = useState(queryCode || urlCode ? 'success' : 'ready');
+  const [manualInput, setManualInput] = useState(queryCode || urlCode || '');
   const [inputMode, setInputMode] = useState('scan'); // 'scan' or 'manual'
-  const [isCodeValid, setIsCodeValid] = useState(false);
+  const [isCodeValid, setIsCodeValid] = useState(!!(queryCode || urlCode));
 
   const baseURL = import.meta.env.VITE_BACKEND_URL;
 
   // Sample valid codes - in a real app, you'd check against a database
   const validCodes = ['h6fuws42icj', 'abc123', 'qwerty'];
+
+  useEffect(() => {
+    if (queryCode || urlCode) {
+      verifyCode(queryCode || urlCode);
+      setManualInput(queryCode || urlCode);
+    }
+  }, [queryCode, urlCode]);
 
   useEffect(() => {
     if (inputMode === 'scan' && !showForm) {
@@ -52,7 +62,17 @@ const QRScanner = () => {
   }, [inputMode, showForm]);
 
   const onScanSuccess = (decodedText) => {
-    verifyCode(decodedText);
+    // Extract code from URL if it's a URL, otherwise use the decoded text directly
+    let code = decodedText;
+    try {
+      const url = new URL(decodedText);
+      code = url.searchParams.get('code') || decodedText;
+    } catch (e) {
+      // If it's not a URL, use the decoded text as is
+      code = decodedText;
+    }
+    setManualInput(code);
+    verifyCode(code);
   };
 
   const onScanFailure = (error) => {

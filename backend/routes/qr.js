@@ -5,6 +5,9 @@ const Attendance = require('../models/Attendance');
 const Client = require('../models/Client');
 const qrcode = require('qrcode');
 const PDFDocument = require('pdfkit');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 // Generate new QR code
 router.post('/generate', async (req, res) => {
@@ -13,8 +16,17 @@ router.post('/generate', async (req, res) => {
     const qr = new QRCode({ code });
     await qr.save();
 
-    // Generate QR code image
-    const qrData = await qrcode.toDataURL(code);
+    // Generate QR code with URL that includes the code
+    const qrContent = `${process.env.FRONTEND_URL}/qr-scanner?code=${code}`;
+    const qrData = await qrcode.toDataURL(qrContent, {
+      errorCorrectionLevel: 'H',
+      margin: 1,
+      width: 400,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    });
     
     res.json({ qrData, code });
   } catch (error) {
@@ -44,8 +56,17 @@ router.get('/export/:code', async (req, res) => {
     doc.fontSize(20).text('Gym Attendance QR Code', { align: 'center' });
     doc.moveDown();
     
-    // Generate QR code
-    const qrData = await qrcode.toDataURL(code);
+    // Generate QR code with URL
+    const qrContent = `${process.env.FRONTEND_URL}/qr-scanner?code=${code}`;
+    const qrData = await qrcode.toDataURL(qrContent, {
+      errorCorrectionLevel: 'H',
+      margin: 1,
+      width: 400,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    });
     const qrImage = Buffer.from(qrData.split(',')[1], 'base64');
     
     // Add QR code image
