@@ -1,17 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // or use 'smtp.ethereal.email', 'hotmail', etc.
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 router.post('/', async (req, res) => {
   try {
     const { name, email, message } = req.body;
 
-    const { data, error } = await resend.emails.send({
-      from: `${name} <onboarding@resend.dev>`,
-      to: ['lakshaygoyal201@gmail.com'],
+    const mailOptions = {
+      from: `"${name}" <${email}>`,
+      to: `${process.env.EMAIL_USER}`,
       subject: 'New Contact Form Submission',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -27,27 +33,29 @@ router.post('/', async (req, res) => {
               <td style="padding: 10px;">${email}</td>
             </tr>
           </table>
-    
+
           <div style="margin-top: 20px;">
             <p style="font-weight: bold; margin-bottom: 5px;">Message:</p>
             <div style="background-color: #f1f1f1; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${message}</div>
           </div>
         </div>
       `,
-      reply_to: email
+      replyTo: email
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ error: 'Failed to send email' });
+      }
+
+      res.status(200).json({ message: 'Email sent successfully', info });
     });
-    
 
-    if (error) {
-      console.error('Error sending email:', error);
-      return res.status(500).json({ error: 'Failed to send email' });
-    }
-
-    res.status(200).json({ message: 'Email sent successfully', data });
   } catch (error) {
     console.error('Error in contact route:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-module.exports = router; 
+module.exports = router;
