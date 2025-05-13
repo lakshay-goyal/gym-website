@@ -457,13 +457,14 @@ const TrainerDashboard = () => {
                       <select
                         name="membershipType"
                         value={newClient.membershipType}
-                        onChange={handleInputChange}
-                        required
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                        onChange={(e) => setNewClient({...newClient, membershipType: e.target.value})}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       >
-                        <option value="1month">1 Month</option>
-                        <option value="3month">3 Months</option>
-                        <option value="6month">6 Months</option>
+                        <option value="1month">1 Month Plan (₹2,500)</option>
+                        <option value="3month">3 Month Plan (₹6,000)</option>
+                        <option value="5month">5 Month Plan (₹8,000)</option>
+                        <option value="6month">6 Month Plan (₹10,000)</option>
+                        <option value="1year">1 Year Plan (₹14,000)</option>
                       </select>
                     </div>
                   </div>

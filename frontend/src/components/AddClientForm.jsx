@@ -116,11 +116,13 @@ const AddClientForm = () => {
               name="membershipType"
               value={formData.membershipType}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             >
-              <option value="1month">1 Month Plan</option>
-              <option value="3month">3 Month Plan</option>
-              <option value="6month">6 Month Plan</option>
+              <option value="1month">1 Month Plan (₹2,500)</option>
+              <option value="3month">3 Month Plan (₹6,000)</option>
+              <option value="5month">5 Month Plan (₹8,000)</option>
+              <option value="6month">6 Month Plan (₹10,000)</option>
+              <option value="1year">1 Year Plan (₹14,000)</option>
             </select>
           </div>
 

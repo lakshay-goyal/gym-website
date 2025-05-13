@@ -68,9 +68,20 @@ const calculateDaysRemaining = (startDate, membershipType) => {
 };
 
 const calculateAmount = (membershipType) => {
-  const monthlyRate = 500;
-  const months = membershipType === '1month' ? 1 : membershipType === '3month' ? 3 : 6;
-  return months * monthlyRate;
+  switch (membershipType) {
+    case '1month':
+      return 2500;
+    case '3month':
+      return 6000;
+    case '5month':
+      return 8000;
+    case '6month':
+      return 10000;
+    case '1year':
+      return 14000;
+    default:
+      return 2500;
+  }
 };
 
 const AdminDashboard = () => {
@@ -650,9 +661,16 @@ const AdminDashboard = () => {
                                 <td className="border p-1 md:p-2 text-sm md:text-base">Gym Membership</td>
                                 <td className="border p-1 md:p-2 text-sm md:text-base">
                                   {selectedClient.membershipType === '1month' ? '1 Month' :
-                                   selectedClient.membershipType === '3month' ? '3 Months' : '6 Months'}
+                                   selectedClient.membershipType === '3month' ? '3 Months' :
+                                   selectedClient.membershipType === '5month' ? '5 Months' :
+                                   selectedClient.membershipType === '6month' ? '6 Months' : '1 Year'}
                                 </td>
-                                <td className="border p-1 md:p-2 text-sm md:text-base">₹500/month</td>
+                                <td className="border p-1 md:p-2 text-sm md:text-base">
+                                  {selectedClient.membershipType === '1month' ? '₹2,500/month' :
+                                   selectedClient.membershipType === '3month' ? '₹2,000/month' :
+                                   selectedClient.membershipType === '5month' ? '₹1,600/month' :
+                                   selectedClient.membershipType === '6month' ? '₹1,667/month' : '₹1,167/month'}
+                                </td>
                                 <td className="border p-1 md:p-2 text-sm md:text-base">₹{calculateAmount(selectedClient.membershipType)}</td>
                               </tr>
                             </tbody>
@@ -842,9 +860,11 @@ const AdminDashboard = () => {
                       onChange={(e) => setNewClient({...newClient, membershipType: e.target.value})}
                       className="w-full px-3 py-2 border rounded"
                     >
-                      <option value="1month">1 Month (₹500)</option>
-                      <option value="3month">3 Months (₹1,500)</option>
-                      <option value="6month">6 Months (₹3,000)</option>
+                      <option value="1month">1 Month Plan (₹2,500)</option>
+                        <option value="3month">3 Month Plan (₹6,000)</option>
+                        <option value="5month">5 Month Plan (₹8,000)</option>
+                        <option value="6month">6 Month Plan (₹10,000)</option>
+                        <option value="1year">1 Year Plan (₹14,000)</option>
                     </select>
                   </div>
                   <div className="mb-4 md:mb-6">
