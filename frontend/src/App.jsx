@@ -13,6 +13,7 @@ import AccountSettings from './components/AccountSettings';
 import TrainerManagement from './components/TrainerManagement';
 import TrainerDashboard from './components/TrainerDashboard';
 import TrainerProfileSettings from './components/TrainerProfileSettings';
+import ForgotPassword from './components/ForgotPassword';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -111,6 +112,7 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </Router>
   );

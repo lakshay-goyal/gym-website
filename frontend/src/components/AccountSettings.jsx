@@ -92,7 +92,7 @@ const AccountSettings = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${baseURL}/api/clients/password`, {
+      await axios.post(`${baseURL}/api/auth/change-password`, {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword
       }, {
