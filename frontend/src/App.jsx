@@ -12,6 +12,7 @@ import AttendanceDashboard from './components/AttendanceDashboard';
 import AccountSettings from './components/AccountSettings';
 import TrainerManagement from './components/TrainerManagement';
 import TrainerDashboard from './components/TrainerDashboard';
+import TrainerProfileSettings from './components/TrainerProfileSettings';
 
 const PrivateRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -67,6 +68,14 @@ function AppRoutes() {
           element={
             <PrivateRoute role="trainer">
               <TrainerDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/trainer/profile-settings"
+          element={
+            <PrivateRoute role="trainer">
+              <TrainerProfileSettings />
             </PrivateRoute>
           }
         />

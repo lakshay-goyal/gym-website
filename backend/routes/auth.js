@@ -14,13 +14,24 @@ const verifyToken = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    const user = await User.findById(decoded.userId);
-
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid token' });
+    
+    // Check if it's a trainer
+    if (decoded.role === 'trainer') {
+      const trainer = await Trainer.findById(decoded.userId);
+      if (!trainer) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+      req.user = trainer;
+      req.user.role = 'trainer';
+    } else {
+      // For other users
+      const user = await User.findById(decoded.userId);
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+      req.user = user;
     }
-
-    req.user = user;
+    
     next();
   } catch (error) {
     res.status(401).json({ message: 'Invalid token' });
@@ -183,6 +194,80 @@ router.post('/verify', async (req, res) => {
       return res.json({ isValid: true, role: 'client' });
     }
   } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update admin settings
+router.put('/update-admin', verifyToken, async (req, res) => {
+  try {
+    const { username, currentPassword, newPassword } = req.body;
+
+    // Verify current password
+    const isMatch = await req.user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Check if username is being changed and if it's already in use
+    if (username !== req.user.username) {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username already in use' });
+      }
+    }
+
+    // Update user details
+    req.user.username = username;
+    if (newPassword) {
+      req.user.password = newPassword;
+    }
+
+    await req.user.save();
+
+    // Generate new token
+    const token = jwt.sign(
+      { userId: req.user._id, role: req.user.role },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: req.user._id,
+        username: req.user.username,
+        role: req.user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update trainer password
+router.put('/update-trainer-password', verifyToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    // Check if user is a trainer
+    if (req.user.role !== 'trainer') {
+      return res.status(403).json({ message: 'Access denied. Trainers only.' });
+    }
+
+    // Verify current password
+    const isMatch = await req.user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Update password
+    req.user.password = newPassword;
+    await req.user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error updating trainer password:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
