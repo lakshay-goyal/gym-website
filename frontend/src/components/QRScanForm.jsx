@@ -5,7 +5,7 @@ import { FaUser, FaLock, FaUserTie, FaUserFriends } from 'react-icons/fa';
 const QRScanForm = ({ code }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('client'); // 'client' or 'trainer'
+  const [role, setRole] = useState('client');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -19,7 +19,6 @@ const QRScanForm = ({ code }) => {
     setError('');
 
     try {
-      // First verify the user credentials based on role
       const authResponse = await axios.post(`${baseURL}/api/auth/verify`, {
         username,
         password,
@@ -30,7 +29,6 @@ const QRScanForm = ({ code }) => {
         throw new Error('Invalid credentials');
       }
 
-      // If credentials are valid, proceed with check-in
       const currentDate = new Date().toISOString();
       let response;
       if (role === 'trainer') {
@@ -51,7 +49,6 @@ const QRScanForm = ({ code }) => {
       setCheckInDate(new Date(currentDate).toLocaleString());
       setSuccess(true);
       
-      // Store user info with their role
       localStorage.setItem('user', JSON.stringify({ 
         username, 
         role: role

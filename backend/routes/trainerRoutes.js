@@ -8,7 +8,6 @@ const Attendance = require('../models/Attendance');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
-// Get all trainers
 router.get('/', adminAuth, async (req, res) => {
   try {
     const trainers = await Trainer.find().sort({ createdAt: -1 });
@@ -18,12 +17,10 @@ router.get('/', adminAuth, async (req, res) => {
   }
 });
 
-// Add new trainer
 router.post('/', adminAuth, async (req, res) => {
   try {
     const { username, email, phone, specialization, experience } = req.body;
     
-    // Check if trainer with username or email already exists
     const existingTrainer = await Trainer.findOne({ 
       $or: [{ username }, { email }] 
     });
@@ -52,18 +49,15 @@ router.post('/', adminAuth, async (req, res) => {
   }
 });
 
-// Update trainer
 router.put('/:id', adminAuth, async (req, res) => {
   try {
     const { username, email, phone, specialization, experience } = req.body;
     
-    // Check if trainer exists
     const trainer = await Trainer.findById(req.params.id);
     if (!trainer) {
       return res.status(404).json({ message: 'Trainer not found' });
     }
 
-    // Check if username or email is being changed and if it's already in use
     if (username !== trainer.username || email !== trainer.email) {
       const existingTrainer = await Trainer.findOne({
         $or: [
@@ -95,7 +89,6 @@ router.put('/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Delete trainer
 router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const trainer = await Trainer.findById(req.params.id);
@@ -110,7 +103,6 @@ router.delete('/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Record trainer attendance
 router.post('/attendance', async (req, res) => {
   try {
     const { username, code, checkInDate } = req.body;
@@ -118,7 +110,6 @@ router.post('/attendance', async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Check if trainer has already checked in today
     const today = new Date(checkInDate);
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -148,7 +139,6 @@ router.post('/attendance', async (req, res) => {
   }
 });
 
-// Middleware to verify trainer token
 const verifyTrainerToken = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -173,7 +163,6 @@ const verifyTrainerToken = async (req, res, next) => {
   }
 };
 
-// Get trainer's clients
 router.get('/clients', verifyTrainerToken, async (req, res) => {
   try {
     const clients = await Client.find({ trainer: req.trainer._id })
@@ -186,10 +175,8 @@ router.get('/clients', verifyTrainerToken, async (req, res) => {
   }
 });
 
-// Get trainer's clients attendance
 router.get('/clients/attendance', verifyTrainerToken, async (req, res) => {
   try {
-    // First get all clients of this trainer
     const clients = await Client.find({ trainer: req.trainer._id })
       .select('username');
 
@@ -197,41 +184,35 @@ router.get('/clients/attendance', verifyTrainerToken, async (req, res) => {
       return res.json([]);
     }
 
-    // Get attendance records for all clients
     const clientUsernames = clients.map(client => client.username);
     const attendance = await Attendance.find({
       username: { $in: clientUsernames }
     })
     .sort({ checkInDate: -1 })
-    .limit(100); // Limit to last 100 records for performance
-
+    .limit(100);
     res.json(attendance);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get trainer's own attendance
 router.get('/attendance', verifyTrainerToken, async (req, res) => {
   try {
     const attendance = await TrainerAttendance.find({
       trainerUsername: req.trainer.username
     })
     .sort({ checkInDate: -1 })
-    .limit(100); // Limit to last 100 records for performance
-
+    .limit(100);
     res.json(attendance);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Add new client (trainer only)
 router.post('/clients', verifyTrainerToken, async (req, res) => {
   try {
     const { username, email, phone, membershipType } = req.body;
     
-    // Check if client with username or email already exists
     const existingClient = await Client.findOne({ 
       $or: [{ username }, { email }] 
     });
@@ -245,22 +226,19 @@ router.post('/clients', verifyTrainerToken, async (req, res) => {
       }
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ message: 'Username already exists' });
     }
 
-    // Create new user first
     const user = new User({
       username,
-      password: username, // Set default password same as username
+      password: username,
       role: 'client'
     });
 
     await user.save();
 
-    // Calculate end date based on membership type
     const startDate = new Date();
     const endDate = new Date();
     switch (membershipType) {
@@ -277,7 +255,6 @@ router.post('/clients', verifyTrainerToken, async (req, res) => {
         endDate.setMonth(endDate.getMonth() + 1);
     }
 
-    // Create new client
     const client = new Client({
       username,
       email,
@@ -286,7 +263,7 @@ router.post('/clients', verifyTrainerToken, async (req, res) => {
       startDate,
       endDate,
       trainer: req.trainer._id,
-      user: user._id // Link to the created user
+      user: user._id
     });
 
     await client.save();

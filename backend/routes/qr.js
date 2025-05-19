@@ -9,14 +9,12 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Generate new QR code
 router.post('/generate', async (req, res) => {
   try {
     const code = Math.random().toString(36).substring(2, 15);
     const qr = new QRCode({ code });
     await qr.save();
 
-    // Generate QR code with URL that includes the code
     const qrContent = `${process.env.FRONTEND_URL}/qr-scanner?code=${code}`;
     const qrData = await qrcode.toDataURL(qrContent, {
       errorCorrectionLevel: 'H',
@@ -34,29 +32,23 @@ router.post('/generate', async (req, res) => {
   }
 });
 
-// Export QR code as PDF
 router.get('/export/:code', async (req, res) => {
   try {
     const { code } = req.params;
     
-    // Create a new PDF document
     const doc = new PDFDocument({
       size: 'A4',
       margin: 50
     });
-    
-    // Set response headers
+  
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=qr-code-${code}.pdf`);
     
-    // Pipe PDF to response
     doc.pipe(res);
     
-    // Add title
     doc.fontSize(20).text('Gym Attendance QR Code', { align: 'center' });
     doc.moveDown();
     
-    // Generate QR code with URL
     const qrContent = `${process.env.FRONTEND_URL}/qr-scanner?code=${code}`;
     const qrData = await qrcode.toDataURL(qrContent, {
       errorCorrectionLevel: 'H',
@@ -69,40 +61,33 @@ router.get('/export/:code', async (req, res) => {
     });
     const qrImage = Buffer.from(qrData.split(',')[1], 'base64');
     
-    // Add QR code image
     doc.image(qrImage, {
       fit: [300, 300],
       align: 'center'
     });
     
-    // Add code text
     doc.moveDown();
     doc.fontSize(14).text(`Code: ${code}`, { align: 'center' });
     
-    // Add instructions
     doc.moveDown();
     doc.fontSize(12).text('Instructions:', { align: 'center' });
     doc.fontSize(10).text('1. Print this QR code and display it at the gym entrance', { align: 'center' });
     doc.fontSize(10).text('2. Members can scan this code to check in/out', { align: 'center' });
     
-    // Finalize PDF
     doc.end();
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Verify QR code and record attendance
 router.post('/verify', async (req, res) => {
   try {
     const { code, username, checkInDate } = req.body;
 
-    // Verify the QR code (you can add your verification logic here)
     if (!code || !username) {
       return res.status(400).json({ message: 'Invalid QR code or username' });
     }
 
-    // Check if user has already checked in today
     const today = new Date(checkInDate);
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -120,7 +105,6 @@ router.post('/verify', async (req, res) => {
       return res.status(400).json({ message: 'You have already checked in today' });
     }
 
-    // Record attendance
     const attendance = new Attendance({
       username,
       checkInDate: checkInDate || new Date(),
@@ -136,18 +120,15 @@ router.post('/verify', async (req, res) => {
   }
 });
 
-// Get attendance records
 router.get('/attendance', async (req, res) => {
   try {
     const { username, date, month } = req.query;
     let query = {};
 
-    // Add username filter if provided
     if (username) {
       query.username = username;
     }
 
-    // Add date filter if provided
     if (date) {
       const startDate = new Date(date);
       const endDate = new Date(date);
@@ -155,7 +136,6 @@ router.get('/attendance', async (req, res) => {
       query.checkInDate = { $gte: startDate, $lt: endDate };
     }
 
-    // Add month filter if provided
     if (month) {
       const [year, monthNum] = month.split('-');
       const startDate = new Date(year, monthNum - 1, 1);
@@ -173,7 +153,6 @@ router.get('/attendance', async (req, res) => {
   }
 });
 
-// Get all QR codes
 router.get('/codes', async (req, res) => {
   try {
     const qrCodes = await QRCode.find().sort({ createdAt: -1 });
@@ -184,7 +163,6 @@ router.get('/codes', async (req, res) => {
   }
 });
 
-// Delete a QR code
 router.delete('/:code', async (req, res) => {
   try {
     const { code } = req.params;
@@ -201,7 +179,6 @@ router.delete('/:code', async (req, res) => {
   }
 });
 
-// Get attendance statistics
 router.get('/attendance/stats', async (req, res) => {
   try {
     const { username } = req.query;
@@ -209,16 +186,13 @@ router.get('/attendance/stats', async (req, res) => {
       return res.status(400).json({ message: 'Username is required' });
     }
 
-    // Get current date and calculate first day of current and last month
     const now = new Date();
     const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-    // Calculate total visits
     const totalVisits = await Attendance.countDocuments({ username });
 
-    // Calculate current month visits
     const currentMonthVisits = await Attendance.countDocuments({
       username,
       checkInDate: {
@@ -227,7 +201,6 @@ router.get('/attendance/stats', async (req, res) => {
       }
     });
 
-    // Calculate last month visits
     const lastMonthVisits = await Attendance.countDocuments({
       username,
       checkInDate: {
@@ -247,12 +220,10 @@ router.get('/attendance/stats', async (req, res) => {
   }
 });
 
-// Verify QR code
 router.get('/verify/:code', async (req, res) => {
   try {
     const { code } = req.params;
     
-    // Check if QR code exists and is active
     const qrCode = await QRCode.findOne({ code, isActive: true });
     
     if (!qrCode) {

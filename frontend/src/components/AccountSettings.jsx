@@ -67,7 +67,6 @@ const AccountSettings = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Update local storage with new username if changed
       const user = JSON.parse(localStorage.getItem('user'));
       if (user) {
         user.username = formData.username;

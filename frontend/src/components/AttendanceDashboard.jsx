@@ -73,24 +73,19 @@ const AttendanceDashboard = ({ username }) => {
           currentMonthVisits: response.data.currentMonthVisits || 0,
           lastMonthVisits: response.data.lastMonthVisits || 0
         });
-        setError(''); // Clear any previous errors
+        setError('');
       } else {
         setError('No data received from server');
       }
     } catch (error) {
       console.error('Error fetching stats:', error.response || error);
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         setError(`Server error: ${error.response.data?.message || error.response.statusText}`);
       } else if (error.request) {
-        // The request was made but no response was received
         setError('No response from server. Please check your connection.');
       } else {
-        // Something happened in setting up the request that triggered an Error
         setError(`Error: ${error.message}`);
       }
-      // Set default values when there's an error
       setStats({
         totalVisits: 0,
         currentMonthVisits: 0,

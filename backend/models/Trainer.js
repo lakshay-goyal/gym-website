@@ -40,7 +40,6 @@ const trainerSchema = new mongoose.Schema({
   }
 });
 
-// Hash password before saving
 trainerSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   try {
@@ -52,12 +51,10 @@ trainerSchema.pre('save', async function(next) {
   }
 });
 
-// Method to compare password
 trainerSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Set default password to username if not provided
 trainerSchema.pre('validate', function(next) {
   if (!this.password) {
     this.password = this.username;

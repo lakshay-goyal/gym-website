@@ -135,7 +135,6 @@ const TrainerDashboard = () => {
       });
       setShowAddClientForm(false);
       
-      // Refresh clients list
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/trainers/clients`, {
         headers: {
           Authorization: `Bearer ${token}`

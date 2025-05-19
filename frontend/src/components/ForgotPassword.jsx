@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState('email'); // 'email' or 'otp'
+  const [step, setStep] = useState('email');
   const [formData, setFormData] = useState({
     email: '',
     otp: ''

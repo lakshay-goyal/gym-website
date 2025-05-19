@@ -25,7 +25,6 @@ import QRGenerator from './QRGenerator';
 import TrainerManagement from './TrainerManagement';
 import OTPVerification from './OTPVerification';
 
-// Animation variants
 const fadeIn = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.5 } }
@@ -36,7 +35,6 @@ const slideUp = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
 };
 
-// Utility functions
 const exportToPDF = (data, columns, title) => {
   const doc = new jsPDF();
   doc.setFontSize(18);
@@ -124,8 +122,7 @@ const AdminDashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const baseURL = import.meta.env.VITE_BACKEND_URL;
-
-  // Check for mobile view
+  
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -134,7 +131,7 @@ const AdminDashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch all data on component mount
+  Fetch all data on component mount
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser) {
@@ -145,7 +142,6 @@ const AdminDashboard = () => {
     fetchAttendance();
   }, []);
 
-  // Fetch attendance when filters change
   useEffect(() => {
     fetchAttendance();
   }, [dateFilter, monthFilter]);
@@ -288,7 +284,7 @@ const AdminDashboard = () => {
         await axios.delete(`${baseURL}/api/clients/${clientId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        fetchClients(); // Refresh the client list
+        fetchClients();
         alert('Client deleted successfully');
       } catch (error) {
         console.error('Error deleting client:', error);
@@ -307,7 +303,7 @@ const AdminDashboard = () => {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
-      fetchClients(); // Refresh the client list
+      fetchClients();
     } catch (error) {
       console.error('Error updating trainer:', error);
       alert(error.response?.data?.message || 'Failed to update trainer');
@@ -319,7 +315,6 @@ const AdminDashboard = () => {
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Dashboard Stats
   const stats = [
     { title: 'Total Members', value: clients.length, icon: <FaUser className="h-6 w-6" /> },
     { title: 'Active Members', value: clients.filter(c => calculateDaysRemaining(c.startDate, c.membershipType) > 0).length, icon: <FaDumbbell className="h-6 w-6" /> },

@@ -134,7 +134,6 @@ const TrainerManagement = () => {
     }));
   };
 
-  // Clear success message after 3 seconds
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {

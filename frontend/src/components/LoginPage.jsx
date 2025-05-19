@@ -31,13 +31,10 @@ const LoginPage = () => {
       const response = await axios.post(`${baseURL}/api/auth/login`, formData);
       const { token, user } = response.data;
 
-      // Store token in localStorage
       localStorage.setItem('token', token);
       
-      // Update auth context
       login(user);
 
-      // Redirect based on user role
       switch (user.role) {
         case 'admin':
           navigate('/admin/dashboard');
@@ -56,7 +53,6 @@ const LoginPage = () => {
     }
   };
 
-  // Animation variants
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.8 } }

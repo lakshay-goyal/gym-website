@@ -12,7 +12,6 @@ const nodemailer = require('nodemailer');
 const Trainer = require('../models/Trainer');
 require('dotenv').config();
 
-// Middleware to verify admin role
 const verifyAdmin = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -34,7 +33,6 @@ const verifyAdmin = async (req, res, next) => {
   }
 };
 
-// Helper function to calculate end date based on membership type
 const calculateEndDate = (startDate, membershipType) => {
   const start = new Date(startDate);
   let monthsToAdd = 0;
@@ -64,7 +62,6 @@ const calculateEndDate = (startDate, membershipType) => {
   return endDate;
 };
 
-// Create nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -73,39 +70,32 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Generate random 6-digit OTP
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Send OTP for new client
 router.post('/send-otp', async (req, res) => {
   try {
     const { username, email, phone, membershipType, startDate, trainer } = req.body;
 
-    // Check if username already exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
-    // Check if email already exists
     const existingClient = await Client.findOne({ email });
     if (existingClient) {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Generate OTP
     const otp = generateOTP();
 
-    // Store OTP and client data
     await OTP.create({
       email,
       otp,
       clientData: { username, email, phone, membershipType, startDate, trainer }
     });
 
-    // Send OTP email
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -128,12 +118,10 @@ router.post('/send-otp', async (req, res) => {
   }
 });
 
-// Verify OTP and create client
 router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    // Find OTP record
     const otpRecord = await OTP.findOne({ email, otp });
     if (!otpRecord) {
       return res.status(400).json({ error: 'Invalid OTP' });
@@ -141,7 +129,6 @@ router.post('/verify-otp', async (req, res) => {
 
     const { username, email: clientEmail, phone, membershipType, startDate, trainer } = otpRecord.clientData;
 
-    // Double check if username or email exists (in case of race conditions)
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ error: 'Username already exists' });
@@ -152,7 +139,6 @@ router.post('/verify-otp', async (req, res) => {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Verify trainer exists if assigned
     let trainerId = null;
     if (trainer) {
       const trainerExists = await Trainer.findById(trainer);
@@ -162,19 +148,16 @@ router.post('/verify-otp', async (req, res) => {
       trainerId = trainer;
     }
 
-    // Create user account with password same as username
     const user = new User({
       username,
-      password: username, // Password will be hashed by the pre-save middleware
+      password: username,
       role: 'client'
     });
 
     await user.save();
 
-    // Calculate end date based on membership type
     const endDate = calculateEndDate(startDate, membershipType);
 
-    // Create client profile
     const client = new Client({
       username,
       email: clientEmail,
@@ -188,17 +171,15 @@ router.post('/verify-otp', async (req, res) => {
 
     await client.save();
 
-    // Delete OTP record
     await OTP.deleteOne({ _id: otpRecord._id });
 
-    // Populate trainer information before sending response
     const populatedClient = await Client.findById(client._id).populate('trainer', 'username');
 
     res.status(201).json({ 
       message: 'Client created successfully', 
       client: {
         ...populatedClient.toObject(),
-        password: username // Return the password (same as username)
+        password: username
       }
     });
   } catch (error) {
@@ -210,18 +191,15 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
-// Add new client
 router.post('/add', verifyAdmin, async (req, res) => {
   try {
     const { username, email, phone, membershipType, startDate, trainer } = req.body;
 
-    // Check if username already exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ message: 'Username already exists' });
     }
 
-    // Verify trainer exists if assigned
     let trainerId = null;
     if (trainer) {
       const trainerExists = await Trainer.findById(trainer);
@@ -231,19 +209,16 @@ router.post('/add', verifyAdmin, async (req, res) => {
       trainerId = trainer;
     }
 
-    // Calculate end date based on membership type
     const endDate = calculateEndDate(startDate, membershipType);
 
-    // Create user account with password same as username
     const user = new User({
       username,
-      password: username, // Password will be hashed by the pre-save middleware
+      password: username,
       role: 'client'
     });
 
     await user.save();
 
-    // Create client profile
     const client = new Client({
       username,
       email,
@@ -260,14 +235,13 @@ router.post('/add', verifyAdmin, async (req, res) => {
     res.status(201).json({
       message: 'Client added successfully',
       username,
-      password: username // Return the password (same as username)
+      password: username
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get client details
 router.get('/me', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -307,13 +281,12 @@ router.get('/me', async (req, res) => {
   }
 });
 
-// Get all clients
 router.get('/', verifyAdmin, async (req, res) => {
   try {
     const clients = await Client.find()
       .populate('trainer', 'username')
       .select('-__v')
-      .sort({ createdAt: -1 }); // Sort by newest first
+      .sort({ createdAt: -1 });
     res.json(clients);
   } catch (error) {
     console.error('Error fetching clients:', error);
@@ -321,10 +294,8 @@ router.get('/', verifyAdmin, async (req, res) => {
   }
 });
 
-// Helper function to generate professional invoice
 const generateInvoice = async (client, res) => {
   try {
-    // Calculate amount based on membership type
     const membershipRates = {
       '1month': 1500,
       '3month': 4000,
@@ -332,11 +303,10 @@ const generateInvoice = async (client, res) => {
     };
     
     const amount = membershipRates[client.membershipType] || 1500;
-    const taxRate = 0.18; // 18% GST
+    const taxRate = 0.18;
     const taxAmount = amount * taxRate;
     const totalAmount = amount + taxAmount;
 
-    // Format dates
     const formatDate = (date) => {
       return new Date(date).toLocaleDateString('en-IN', {
         day: '2-digit',
@@ -345,21 +315,17 @@ const generateInvoice = async (client, res) => {
       });
     };
 
-    // Create PDF document
     const doc = new PDFDocument({
       size: 'A4',
       margin: 50,
       bufferPages: true
     });
     
-    // Set response headers
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=Invoice_${client.username}.pdf`);
     
-    // Pipe PDF to response
     doc.pipe(res);
 
-    // Add header with company info
     doc.fillColor('#444444')
        .fontSize(20)
        .text('MYO-PLUS FITNESS', 50, 50)
@@ -369,14 +335,12 @@ const generateInvoice = async (client, res) => {
        .text('GSTIN: 29ABCDE1234F1Z5', 200, 80, { align: 'right' })
        .moveDown();
 
-    // Draw horizontal line
     doc.strokeColor('#aaaaaa')
        .lineWidth(1)
        .moveTo(50, 120)
        .lineTo(550, 120)
        .stroke();
 
-    // Add invoice title and details
     doc.fontSize(20)
        .text('INVOICE', 50, 140)
        .fontSize(10)
@@ -386,7 +350,6 @@ const generateInvoice = async (client, res) => {
        .text(`Membership Period: ${formatDate(client.startDate)} - ${formatDate(client.endDate)}`, 50, 215)
        .moveDown();
 
-    // Add client details
     doc.fontSize(12)
        .font('Helvetica-Bold')
        .text('Bill To:', 50, 250)
@@ -396,7 +359,6 @@ const generateInvoice = async (client, res) => {
        .text(client.phone, 50, 295)
        .moveDown();
 
-    // Create table for invoice items
     const tableTop = 350;
     const itemCodeX = 50;
     const descriptionX = 100;
@@ -405,7 +367,6 @@ const generateInvoice = async (client, res) => {
     const taxX = 475;
     const lineY = tableTop + 20;
 
-    // Table header
     doc.font('Helvetica-Bold')
        .fontSize(10)
        .text('Code', itemCodeX, tableTop)
@@ -417,7 +378,6 @@ const generateInvoice = async (client, res) => {
        .lineTo(550, tableTop + 15)
        .stroke();
 
-    // Table row
     doc.font('Helvetica')
        .text('GYM001', itemCodeX, lineY)
        .text(`Gym Membership (${client.membershipType})`, descriptionX, lineY)
@@ -428,7 +388,6 @@ const generateInvoice = async (client, res) => {
        .lineTo(550, lineY + 20)
        .stroke();
 
-    // Summary section
     const summaryY = lineY + 40;
     doc.font('Helvetica-Bold')
        .text('Subtotal:', amountX, summaryY)
@@ -445,7 +404,6 @@ const generateInvoice = async (client, res) => {
        .lineTo(550, summaryY + 55)
        .stroke();
 
-    // Payment information
     doc.fontSize(10)
        .text('Payment Method: Bank Transfer', 50, summaryY + 80)
        .text('Bank Name: State Bank of India', 50, summaryY + 95)
@@ -454,7 +412,6 @@ const generateInvoice = async (client, res) => {
        .text('IFSC Code: SBIN0001234', 50, summaryY + 140)
        .text(`Payment Status: ${client.paymentStatus || 'Pending'}`, 50, summaryY + 155);
 
-    // Terms and conditions
     doc.fontSize(8)
        .text('Terms & Conditions:', 50, 650)
        .text('1. Membership is non-transferable and non-refundable.', 50, 665)
@@ -462,13 +419,11 @@ const generateInvoice = async (client, res) => {
        .text('3. Late payments may result in membership suspension.', 50, 695)
        .text('4. Please bring this invoice for any queries.', 50, 710);
 
-    // Footer
     doc.fontSize(8)
        .text('Thank you for choosing Myo-Plus Fitness!', 50, 730, { align: 'center' })
        .text('For any queries, contact: support@myoplus.com | Phone: +91 9876543210', 50, 745, { align: 'center' })
        .text('This is a computer generated invoice and does not require a signature.', 50, 760, { align: 'center' });
 
-    // Finalize PDF
     doc.end();
   } catch (error) {
     console.error('Error generating invoice:', error);
@@ -476,7 +431,6 @@ const generateInvoice = async (client, res) => {
   }
 };
 
-// Generate client invoice (admin)
 router.get('/invoice/:clientId', verifyAdmin, async (req, res) => {
   try {
     const client = await Client.findById(req.params.clientId);
@@ -490,7 +444,6 @@ router.get('/invoice/:clientId', verifyAdmin, async (req, res) => {
   }
 });
 
-// Get client's own invoice
 router.get('/my-invoice', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -512,7 +465,6 @@ router.get('/my-invoice', async (req, res) => {
   }
 });
 
-// Delete client
 router.delete('/:id', verifyAdmin, async (req, res) => {
   try {
     const client = await Client.findById(req.params.id);
@@ -530,7 +482,6 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
   }
 });
 
-// Update client profile
 router.put('/profile', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -576,7 +527,6 @@ router.put('/profile', async (req, res) => {
   }
 });
 
-// Get all trainers
 router.get('/trainers', verifyAdmin, async (req, res) => {
   try {
     const trainers = await Trainer.find()
@@ -589,19 +539,16 @@ router.get('/trainers', verifyAdmin, async (req, res) => {
   }
 });
 
-// Update client's trainer
 router.put('/:clientId/trainer', verifyAdmin, async (req, res) => {
   try {
     const { trainerId } = req.body;
     const clientId = req.params.clientId;
 
-    // Verify client exists
     const client = await Client.findById(clientId);
     if (!client) {
       return res.status(404).json({ error: 'Client not found' });
     }
 
-    // Verify trainer exists if trainerId is provided
     if (trainerId) {
       const trainerExists = await Trainer.findById(trainerId);
       if (!trainerExists) {
@@ -612,7 +559,6 @@ router.put('/:clientId/trainer', verifyAdmin, async (req, res) => {
       }
     }
 
-    // Update client
     const updatedClient = await Client.findByIdAndUpdate(
       clientId,
       { trainer: trainerId || null },

@@ -4,7 +4,6 @@ const Client = require('../models/Client');
 const Trainer = require('../models/Trainer');
 const adminAuth = require('../middleware/admin');
 
-// Get all clients with trainer details
 router.get('/', adminAuth, async (req, res) => {
   try {
     const clients = await Client.find().populate('trainer', 'username');
@@ -14,12 +13,10 @@ router.get('/', adminAuth, async (req, res) => {
   }
 });
 
-// Add new client
 router.post('/', adminAuth, async (req, res) => {
   try {
     const { username, email, phone, membershipType, trainerId } = req.body;
     
-    // Check if client with username or email already exists
     const existingClient = await Client.findOne({ 
       $or: [{ username }, { email }] 
     });
@@ -33,7 +30,6 @@ router.post('/', adminAuth, async (req, res) => {
       }
     }
 
-    // Calculate end date based on membership type
     const startDate = new Date();
     const endDate = new Date();
     switch (membershipType) {
@@ -67,7 +63,6 @@ router.post('/', adminAuth, async (req, res) => {
   }
 });
 
-// Update client
 router.put('/:id', adminAuth, async (req, res) => {
   try {
     const { username, email, phone, membershipType, trainerId } = req.body;
@@ -77,7 +72,6 @@ router.put('/:id', adminAuth, async (req, res) => {
       return res.status(404).json({ message: 'Client not found' });
     }
 
-    // Check if username or email is being changed and if it's already in use
     if (username !== client.username || email !== client.email) {
       const existingClient = await Client.findOne({
         $or: [
@@ -96,14 +90,12 @@ router.put('/:id', adminAuth, async (req, res) => {
       }
     }
 
-    // Update client details
     client.username = username;
     client.email = email;
     client.phone = phone;
     client.membershipType = membershipType;
     client.trainer = trainerId || null;
 
-    // If membership type changed, update end date
     if (membershipType !== client.membershipType) {
       const startDate = new Date();
       const endDate = new Date();
@@ -131,7 +123,6 @@ router.put('/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Delete client
 router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const client = await Client.findById(req.params.id);
@@ -146,7 +137,6 @@ router.delete('/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Get all trainers for dropdown
 router.get('/trainers', adminAuth, async (req, res) => {
   try {
     const trainers = await Trainer.find().select('username');

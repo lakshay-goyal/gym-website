@@ -34,7 +34,7 @@ const QRGenerator = () => {
       const response = await axios.post(`${baseURL}/api/qr/generate`);
       setQrCode(response.data.qrData);
       setCode(response.data.code);
-      await fetchQRCodes(); // Refresh the list after generating
+      await fetchQRCodes();
     } catch (error) {
       console.error('Error generating QR code:', error);
       setError('Failed to generate QR code');
@@ -46,7 +46,7 @@ const QRGenerator = () => {
   const deleteQR = async (code) => {
     try {
       await axios.delete(`${baseURL}/api/qr/${code}`);
-      await fetchQRCodes(); // Refresh the list after deleting
+      await fetchQRCodes();
       if (selectedQR?.code === code) {
         setSelectedQR(null);
         setShowPreview(false);

@@ -6,7 +6,6 @@ const fs = require('fs');
 const generateInvoice = async (client, membershipType) => {
   const doc = new jsPDF();
   
-  // Constants
   const MONTHLY_CHARGE = 500;
   const membershipMonths = {
     '1month': 1,
@@ -16,40 +15,34 @@ const generateInvoice = async (client, membershipType) => {
   
   const months = membershipMonths[membershipType];
   const subtotal = MONTHLY_CHARGE * months;
-  const tax = subtotal * 0.18; // 18% GST
+  const tax = subtotal * 0.18;
   const total = subtotal + tax;
   
-  // Generate invoice number
   const invoiceNumber = `INV-${Date.now()}`;
   
-  // Add header with logo and company details
   doc.setFontSize(24);
-  doc.setTextColor(41, 128, 185); // Blue color
+  doc.setTextColor(41, 128, 185);
   doc.text('FITNESS HUB', 14, 20);
   
   doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0); // Black color
+  doc.setTextColor(0, 0, 0);
   doc.text('123 Gym Street, Fitness City', 14, 30);
   doc.text('Phone: +91 1234567890', 14, 35);
   doc.text('Email: info@fitnesshub.com', 14, 40);
   
-  // Add invoice title
   doc.setFontSize(16);
   doc.text('INVOICE', 14, 60);
   
-  // Add invoice details
   doc.setFontSize(10);
   doc.text(`Invoice Number: ${invoiceNumber}`, 14, 70);
   doc.text(`Issue Date: ${new Date().toLocaleDateString()}`, 14, 75);
   doc.text(`Due Date: ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}`, 14, 80);
   
-  // Add client details
   doc.text('Bill To:', 14, 90);
   doc.text(`Name: ${client.username}`, 14, 95);
   doc.text(`Email: ${client.email}`, 14, 100);
   doc.text(`Phone: ${client.phone}`, 14, 105);
   
-  // Add items table
   autoTable(doc, {
     startY: 115,
     head: [['Description', 'Quantity', 'Unit Price', 'Total']],
@@ -81,7 +74,6 @@ const generateInvoice = async (client, membershipType) => {
     margin: { left: 14 }
   });
   
-  // Add totals
   const finalY = doc.lastAutoTable.finalY + 10;
   doc.setFontSize(10);
   doc.text(`Subtotal: ₹${subtotal}`, 14, finalY);
@@ -90,7 +82,6 @@ const generateInvoice = async (client, membershipType) => {
   doc.setFont(undefined, 'bold');
   doc.text(`Total: ₹${total}`, 14, finalY + 15);
   
-  // Add payment terms
   doc.setFont(undefined, 'normal');
   doc.setFontSize(8);
   doc.text('Payment Terms:', 14, finalY + 30);
@@ -101,12 +92,10 @@ const generateInvoice = async (client, membershipType) => {
   doc.text('Bank: Fitness Bank', 14, finalY + 55);
   doc.text('IFSC: FITB0001234', 14, finalY + 60);
   
-  // Add footer
   doc.setFontSize(8);
   doc.text('Thank you for your business!', 14, finalY + 70);
   doc.text('For any queries, please contact us at support@fitnesshub.com', 14, finalY + 75);
   
-  // Save the PDF
   const uploadsDir = path.join(__dirname, '../uploads/invoices');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });

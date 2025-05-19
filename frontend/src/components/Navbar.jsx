@@ -32,13 +32,11 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
-  // Common navigation items for all authenticated users
   const commonNavItems = [
     { name: 'Home', path: '/', icon: <FaHome /> },
     { name: 'Profile', path: '/profile', icon: <FaUser /> },
   ];
 
-  // Navigation items specific to client role
   const clientNavItems = [
     { name: 'Dashboard', path: '/client/dashboard', icon: <FaChartLine /> },
     { name: 'Check In', path: '/client/qr-scanner', icon: <FaQrcode /> },
@@ -46,7 +44,6 @@ const Navbar = () => {
     { name: 'Settings', path: '/client/account-settings', icon: <FaUserCog /> },
   ];
 
-  // Navigation items specific to trainer role
   const trainerNavItems = [
     { name: 'Dashboard', path: '/trainer/dashboard', icon: <FaChartLine /> },
     { name: 'Clients', path: '/trainer/clients', icon: <FaUsers /> },
@@ -54,14 +51,12 @@ const Navbar = () => {
     { name: 'Settings', path: '/trainer/settings', icon: <FaCog /> },
   ];
 
-  // Navigation items specific to admin role
   const adminNavItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <FaChartLine /> },
     { name: 'Users', path: '/admin/users', icon: <FaUsers /> },
     { name: 'Settings', path: '/admin/settings', icon: <FaCog /> },
   ];
 
-  // Get role-specific navigation items
   const getRoleNavItems = () => {
     if (!user) return [];
     

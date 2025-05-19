@@ -26,12 +26,11 @@ const QRScanner = () => {
   const [message, setMessage] = useState('');
   const [scanStatus, setScanStatus] = useState(queryCode || urlCode ? 'success' : 'ready');
   const [manualInput, setManualInput] = useState(queryCode || urlCode || '');
-  const [inputMode, setInputMode] = useState('scan'); // 'scan' or 'manual'
+  const [inputMode, setInputMode] = useState('scan');
   const [isCodeValid, setIsCodeValid] = useState(!!(queryCode || urlCode));
 
   const baseURL = import.meta.env.VITE_BACKEND_URL;
 
-  // Sample valid codes - in a real app, you'd check against a database
   const validCodes = ['h6fuws42icj', 'abc123', 'qwerty'];
 
   useEffect(() => {
@@ -62,13 +61,11 @@ const QRScanner = () => {
   }, [inputMode, showForm]);
 
   const onScanSuccess = (decodedText) => {
-    // Extract code from URL if it's a URL, otherwise use the decoded text directly
     let code = decodedText;
     try {
       const url = new URL(decodedText);
       code = url.searchParams.get('code') || decodedText;
     } catch (e) {
-      // If it's not a URL, use the decoded text as is
       code = decodedText;
     }
     setManualInput(code);
@@ -83,7 +80,6 @@ const QRScanner = () => {
 
   const verifyCode = async (code) => {
     try {
-      // First, check if the code exists in the database
       const response = await axios.get(`${baseURL}/api/qr/verify/${code}`);
       
       if (response.data.isValid) {

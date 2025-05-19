@@ -91,7 +91,6 @@ const NavBar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex md:items-center md:space-x-4">
             {!user ? (
-              // Not logged in
               <>
                 <button
                   onClick={() => handleNavigation('/')}
@@ -124,7 +123,6 @@ const NavBar = () => {
                 </button>
               </>
             ) : user.role === 'admin' ? (
-              // Admin navigation
               <>
                 <button
                   onClick={() => handleNavigation('/admin/dashboard')}
@@ -157,7 +155,6 @@ const NavBar = () => {
                 </button>
               </>
             ) : (
-              // Client navigation
               <>
                 <button
                   onClick={() => handleNavigation('/client/dashboard')}
@@ -220,7 +217,6 @@ const NavBar = () => {
       <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden bg-gray-800`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           {!user ? (
-            // Not logged in mobile menu
             <>
               <button
                 onClick={() => handleNavigation('/')}
@@ -253,7 +249,6 @@ const NavBar = () => {
               </button>
             </>
           ) : user.role === 'admin' ? (
-            // Admin mobile navigation
             <>
               <button
                 onClick={() => handleNavigation('/admin/dashboard')}
@@ -286,7 +281,6 @@ const NavBar = () => {
               </button>
             </>
           ) : (
-            // Client mobile navigation
             <>
               <button
                 onClick={() => handleNavigation('/client/dashboard')}

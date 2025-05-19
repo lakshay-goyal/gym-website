@@ -9,7 +9,7 @@ const qrCodeSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 86400 // Document will be automatically deleted after 24 hours
+    expires: 86400
   },
   isActive: {
     type: Boolean,

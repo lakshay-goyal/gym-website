@@ -24,7 +24,6 @@ import {
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
-// Motivational quotes
 const MOTIVATIONAL_QUOTES = [
   "The only bad workout is the one that didn't happen.",
   "Strength doesn't come from what you can do. It comes from overcoming the things you once thought you couldn't.",
@@ -83,7 +82,6 @@ const ClientDashboard = () => {
           params: { username: clientData?.username }
         });
 
-        // Calculate stats from attendance data
         const now = new Date();
         const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const startOfLastWeek = new Date(now);

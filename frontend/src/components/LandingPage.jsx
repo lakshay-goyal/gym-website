@@ -18,7 +18,6 @@ const LandingPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showContactForm, setShowContactForm] = useState(false);
 
-  // Gym background images for hero section rotation
   const gymImages = [
     "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80",
     "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80",
@@ -26,7 +25,6 @@ const LandingPage = () => {
     "https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=900&q=80"
   ];
 
-  // Motivational quotes for gym
   const quotes = [
     "The only bad workout is the one that didn't happen.",
     "Strength doesn't come from what you can do. It comes from overcoming the things you once thought you couldn't.",
@@ -50,7 +48,6 @@ const LandingPage = () => {
     "The secret of getting ahead is getting started."
   ];
 
-  // Daily motivational tips
   const dailyTips = [
     "Today's Tip: Focus on progressive overload - increase weight or reps each session.",
     "Tip: Stay hydrated! Drink at least 3 liters of water today.",
@@ -97,7 +94,6 @@ const LandingPage = () => {
     visible: { y: 0, opacity: 1, transition: { duration: 0.8 } }
   };
 
-  // Mock testimonials data
   const testimonials = [
     {
       id: 1,
@@ -122,7 +118,6 @@ const LandingPage = () => {
     }
   ];
 
-  // Membership plans data
   const membershipPlans = [
     {
       name: "1 Month",
