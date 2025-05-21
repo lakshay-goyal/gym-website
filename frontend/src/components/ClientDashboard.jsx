@@ -146,28 +146,28 @@ const ClientDashboard = () => {
       {/* Hero Section with Membership Status */}
       <div className="relative bg-gradient-to-r from-red-900 to-black">
         <div className="absolute inset-0 bg-black opacity-40"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="md:w-1/2 mb-8 md:mb-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="w-full md:w-1/2">
               <div className="mb-6">
-                <h1 className="text-4xl font-bold mb-4">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-4">
                   Welcome Back, <span className="text-red-400">{clientData?.username}</span>
                 </h1>
-                <div className="space-y-2 text-gray-300">
+                <div className="space-y-2 text-gray-300 text-sm sm:text-base">
                   <p><span className="text-gray-400">Email:</span> {clientData?.email}</p>
                   <p><span className="text-gray-400">Phone:</span> {clientData?.phone || 'Not provided'}</p>
                   <p><span className="text-gray-400">Membership:</span> {clientData?.membershipType?.replace('month', ' Month')} Plan</p>
                 </div>
               </div>
               <div className="bg-red-900/50 p-4 rounded-lg border-l-4 border-red-500 mb-6">
-                <p className="text-xl italic">"{motivationalQuote}"</p>
+                <p className="text-lg sm:text-xl italic">"{motivationalQuote}"</p>
               </div>
-              <div className="flex space-x-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate('/client/qr-scanner')}
-                  className="flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-all"
+                  className="flex items-center justify-center px-4 sm:px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-all"
                 >
                   <FaQrcode className="mr-2" /> Check In Now
                 </motion.button>
@@ -175,13 +175,13 @@ const ClientDashboard = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate('/client/attendance')}
-                  className="flex items-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg shadow-lg transition-all"
+                  className="flex items-center justify-center px-4 sm:px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg shadow-lg transition-all"
                 >
                   <FaChartLine className="mr-2" /> View Progress
                 </motion.button>
               </div>
             </div>
-            <div className="md:w-1/2 flex justify-center">
+            <div className="w-full md:w-1/2 flex justify-center">
               <img 
                 src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
                 alt="Fitness Motivation"
@@ -195,27 +195,27 @@ const ClientDashboard = () => {
       {/* Membership Status Banner */}
       {clientData && (
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="flex items-center mb-6 md:mb-0">
-                <div className="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full mr-4 shadow-lg">
-                  <FaCalendarAlt className="text-white text-2xl" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center">
+                <div className="p-3 sm:p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full mr-4 shadow-lg">
+                  <FaCalendarAlt className="text-white text-xl sm:text-2xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-1">Membership Status</h3>
-                  <p className="text-gray-300 text-lg">Valid until {new Date(clientData.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">Membership Status</h3>
+                  <p className="text-gray-300 text-sm sm:text-lg">Valid until {new Date(clientData.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-8">
+              <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
                 <div className="text-center">
-                  <p className={`text-4xl font-bold mb-1 transition-colors duration-300 ${
+                  <p className={`text-3xl sm:text-4xl font-bold mb-1 transition-colors duration-300 ${
                     clientData.daysRemaining <= 7 ? 'text-red-400 animate-pulse' : 
                     clientData.daysRemaining <= 14 ? 'text-yellow-400' : 
                     'text-white'
                   }`}>
                     {clientData.daysRemaining}
                   </p>
-                  <p className={`text-lg transition-colors duration-300 ${
+                  <p className={`text-base sm:text-lg transition-colors duration-300 ${
                     clientData.daysRemaining <= 7 ? 'text-red-300' : 
                     clientData.daysRemaining <= 14 ? 'text-yellow-300' : 
                     'text-gray-400'
@@ -226,7 +226,7 @@ const ClientDashboard = () => {
                     )}
                   </p>
                 </div>
-                <div className="w-80">
+                <div className="w-full sm:w-80">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-gray-400">Membership Progress</span>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
@@ -298,20 +298,20 @@ const ClientDashboard = () => {
 
       {/* Gym Timings Section */}
       <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {/* Main Timings Card */}
-            <div className="md:col-span-2 bg-gray-800/50 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm">
-              <div className="flex items-center mb-6">
-                <div className="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full mr-4 shadow-lg">
-                  <FaClock className="text-white text-2xl" />
+            <div className="md:col-span-2 bg-gray-800/50 rounded-xl p-4 sm:p-6 border border-gray-700/50 backdrop-blur-sm">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <div className="p-3 sm:p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full mr-4 shadow-lg">
+                  <FaClock className="text-white text-xl sm:text-2xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-1">Gym Timings</h3>
-                  <p className="text-gray-400">Plan your workout schedule</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">Gym Timings</h3>
+                  <p className="text-gray-400 text-sm sm:text-base">Plan your workout schedule</p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-gray-300 font-medium">Weekdays</span>
@@ -348,17 +348,17 @@ const ClientDashboard = () => {
             </div>
 
             {/* Quick Info Card */}
-            <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm">
-              <div className="flex items-center mb-6">
-                <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mr-4 shadow-lg">
-                  <FaInfoCircle className="text-white text-2xl" />
+            <div className="bg-gray-800/50 rounded-xl p-4 sm:p-6 border border-gray-700/50 backdrop-blur-sm">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <div className="p-3 sm:p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mr-4 shadow-lg">
+                  <FaInfoCircle className="text-white text-xl sm:text-2xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-1">Quick Info</h3>
-                  <p className="text-gray-400">Important details</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">Quick Info</h3>
+                  <p className="text-gray-400 text-sm sm:text-base">Important details</p>
                 </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center text-gray-300">
                   <FaDumbbell className="text-blue-400 mr-3" />
                   <span>State-of-the-art equipment</span>
@@ -382,12 +382,12 @@ const ClientDashboard = () => {
       </div>
 
       {/* Progress Metrics */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold mb-8 text-center text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-white">
           <FaChartLine className="inline mr-2 text-red-500" /> Your Fitness Journey
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* Total Workouts */}
           <motion.div 
             whileHover={{ scale: 1.03 }}
@@ -475,7 +475,7 @@ const ClientDashboard = () => {
 
         {/* User Profile and Membership Details */}
         {clientData && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-12">
             {/* Profile Card */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -595,10 +595,10 @@ const ClientDashboard = () => {
         )}
 
         {/* Quick Actions */}
-        <h2 className="text-3xl font-bold mb-8 text-center text-white">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-white">
           <FaDumbbell className="inline mr-2 text-red-500" /> Quick Actions
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           <motion.div 
             whileHover={{ scale: 1.03 }}
             className="bg-gray-800/50 p-8 rounded-2xl shadow-xl text-center cursor-pointer border border-gray-700/50 backdrop-blur-sm"
@@ -645,11 +645,11 @@ const ClientDashboard = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
+      <footer className="bg-gray-900 text-white py-8 sm:py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <div className="flex items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start">
                 <FaDumbbell className="text-red-400 mr-3 text-2xl" />
                 <span className="text-2xl font-bold">Myo-Plus Fitness</span>
               </div>
@@ -660,14 +660,14 @@ const ClientDashboard = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleLogout}
-                className="flex items-center px-6 py-3 bg-red-900/50 hover:bg-red-900 rounded-lg transition-all"
+                className="flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-red-900/50 hover:bg-red-900 rounded-lg transition-all"
               >
                 <FaSignOutAlt className="mr-2" /> Logout
               </motion.button>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p className="text-lg">© {new Date().getFullYear()} Myo-Plus Fitness Gym. All rights reserved.</p>
+          <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-gray-400">
+            <p className="text-base sm:text-lg">© {new Date().getFullYear()} Myo-Plus Fitness Gym. All rights reserved.</p>
             <p className="mt-2 italic text-gray-500">"Discipline is the bridge between goals and accomplishment."</p>
           </div>
         </div>
