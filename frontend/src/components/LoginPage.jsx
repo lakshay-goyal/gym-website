@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaUser, FaLock, FaDumbbell, FaFire } from 'react-icons/fa';
+import { FaUser, FaLock, FaDumbbell, FaFire, FaSpinner } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +11,7 @@ const LoginPage = () => {
     password: '',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -26,13 +27,13 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
       const response = await axios.post(`${baseURL}/api/auth/login`, formData);
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);
-      
       login(user);
 
       switch (user.role) {
@@ -50,6 +51,8 @@ const LoginPage = () => {
       }
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred during login');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -191,50 +194,24 @@ const LoginPage = () => {
               <div>
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-300`}
+                  whileHover={!loading ? { scale: 1.02 } : {}}
+                  whileTap={!loading ? { scale: 0.98 } : {}}
+                  disabled={loading}
+                  className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white ${
+                    loading ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-300`}
                 >
-                  <FaFire className="mr-2" />
-                  SIGN IN
+                  {loading ? (
+                    <FaSpinner className="animate-spin mr-2" />
+                  ) : (
+                    <FaFire className="mr-2" />
+                  )}
+                  {loading ? 'Signing In...' : 'SIGN IN'}
                 </motion.button>
               </div>
             </form>
-
-            {/* <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-700"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-gray-900 bg-opacity-80 text-gray-400">
-                    NEW TO Myo-Plus Fitness?
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <Link
-                  to="/register"
-                  className="w-full flex justify-center py-2 px-4 border border-gray-700 rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-300"
-                >
-                  CREATE YOUR ACCOUNT
-                </Link>
-              </div>
-            </div> */}
           </div>
         </motion.div>
-
-        {/* <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={fadeIn}
-          className="mt-8 text-center text-sm text-gray-400"
-        >
-          <p>
-            By signing in, you agree to our <Link to="/terms" className="text-red-400 hover:text-red-300">Terms of Service</Link> and <Link to="/privacy" className="text-red-400 hover:text-red-300">Privacy Policy</Link>
-          </p>
-        </motion.div> */}
       </div>
     </div>
   );
